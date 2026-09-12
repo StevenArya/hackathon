@@ -66,18 +66,21 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-yellow-50 px-4 py-10">
+      <div className="w-full max-w-md rounded-2xl border border-pink-100 bg-white p-8 shadow-xl shadow-y1 shadow-pink-200/50">
+        <Link href="/" className="mb-8 inline-flex items-center gap-3 text-xl font-semibold text-stone-500">
+        <span className="brand-mark" aria-hidden="true">
+          <span /><span /><span /></span>Creditly</Link>
         <div className="mb-8">
-          <p className="mb-2 text-sm font-semibold text-blue-600">
+          <p className="mb-2 text-sm font-semibold text-stone-500">
             Credit Management
           </p>
 
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-pink-500">
             Create account
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-stone-600">
             Create your customer account.
           </p>
         </div>
@@ -86,7 +89,7 @@ export default function SignupPage() {
           <div>
             <label
               htmlFor="fullName"
-              className="mb-2 block text-sm font-medium text-slate-700"
+              className="mb-2 block text-sm font-medium text-stone-700"
             >
               Full name
             </label>
@@ -98,14 +101,14 @@ export default function SignupPage() {
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
               placeholder="Your full name"
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-pink-200 px-4 py-3 text-stone-800 outline-none focus:border-pink-400"
             />
           </div>
 
           <div>
             <label
               htmlFor="email"
-              className="mb-2 block text-sm font-medium text-slate-700"
+              className="mb-2 block text-sm font-medium text-stone-700"
             >
               Email
             </label>
@@ -117,14 +120,14 @@ export default function SignupPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-pink-200 px-4 py-3 text-stone-800 outline-none focus:border-pink-400"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="mb-2 block text-sm font-medium text-slate-700"
+              className="mb-2 block text-sm font-medium text-stone-700"
             >
               Password
             </label>
@@ -136,14 +139,14 @@ export default function SignupPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Create a password"
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-pink-200 px-4 py-3 text-stone-800 outline-none focus:border-pink-400"
             />
           </div>
 
           <div>
             <label
               htmlFor="confirmPassword"
-              className="mb-2 block text-sm font-medium text-slate-700"
+              className="mb-2 block text-sm font-medium text-stone-700"
             >
               Confirm password
             </label>
@@ -155,7 +158,7 @@ export default function SignupPage() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Repeat your password"
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-pink-200 px-4 py-3 text-stone-800 outline-none focus:border-pink-400"
             />
           </div>
 
@@ -174,21 +177,29 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-xl bg-pink-200 px-4 py-3 font-semibold text-pink-800 transition hover:bg-pink-300 disabled:opacity-50"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-stone-600">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="font-semibold text-blue-600 hover:underline"
+            className="font-semibold text-pink-500 hover:underline"
           >
             Sign in
           </Link>
         </p>
+      </div>
+      <div className="w-full max-w-md">
+        <Link
+          href="/"
+          className="inline-flex rounded-xl bg-pink-200 px-5 py-3 text-sm font-semibold text-pink-800 transition hover:bg-pink-300"
+        >
+          Go back to home
+        </Link>
       </div>
     </main>
   );

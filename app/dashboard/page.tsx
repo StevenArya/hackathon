@@ -47,7 +47,7 @@ function paymentStyle(paymentType: Invoice["payment_type"]) {
       return "bg-purple-100 text-purple-700";
 
     default:
-      return "bg-slate-100 text-slate-600";
+      return "bg-yellow-50 text-stone-600";
   }
 }
 
@@ -156,21 +156,21 @@ export default function CustomerDashboard() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100">
-        <p className="text-slate-500">Loading...</p>
+      <main className="flex min-h-screen items-center justify-center bg-yellow-50">
+        <p className="text-stone-600">Loading...</p>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-        <div className="rounded-2xl bg-white p-8 shadow-sm">
+      <main className="flex min-h-screen items-center justify-center bg-yellow-50 px-4">
+        <div className="rounded-2xl border border-pink-100 bg-white p-8 shadow-sm">
           <p className="text-red-600">{error}</p>
 
           <button
             onClick={handleLogout}
-            className="mt-5 rounded-xl bg-slate-900 px-4 py-2 text-white"
+            className="mt-5 rounded-xl bg-pink-200 px-4 py-2 text-stone-800"
           >
             Sign out
           </button>
@@ -192,22 +192,22 @@ export default function CustomerDashboard() {
   ).length;
 
   return (
-    <main className="min-h-screen bg-slate-100">
-      <header className="border-b border-slate-200 bg-white">
+    <main className="min-h-screen bg-yellow-50">
+      <header className="sticky top-0 z-20 border-b border-pink-100 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <div>
-            <p className="text-sm font-semibold text-blue-600">
+            <p className="text-sm font-semibold text-pink-700">
               Customer Portal
             </p>
 
-            <h1 className="text-xl font-bold text-slate-900">
+            <h1 className="text-xl font-bold text-stone-800">
               {customer.name}
             </h1>
           </div>
 
           <button
             onClick={handleLogout}
-            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-pink-200 px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
           >
             Sign out
           </button>
@@ -216,36 +216,36 @@ export default function CustomerDashboard() {
 
       <div className="mx-auto max-w-6xl px-6 py-8">
         <div className="mb-8">
-          <p className="text-sm text-slate-500">Welcome back</p>
+          <p className="text-sm text-stone-600">Welcome back</p>
 
-          <h2 className="text-3xl font-bold text-slate-900">
+          <h2 className="text-3xl font-bold text-stone-800">
             {profile?.full_name || customer.name}
           </h2>
         </div>
 
         <section className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+            <p className="text-sm text-stone-600">
               Customer ID
             </p>
 
-            <p className="mt-2 text-xl font-bold text-slate-900">
+            <p className="mt-2 text-xl font-bold text-stone-800">
               {customer.customer_code}
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+            <p className="text-sm text-stone-600">
               Outstanding
             </p>
 
-            <p className="mt-2 text-xl font-bold text-slate-900">
+            <p className="mt-2 text-xl font-bold text-stone-800">
               {formatCurrency(outstanding)}
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+            <p className="text-sm text-stone-600">
               Account status
             </p>
 
@@ -261,29 +261,29 @@ export default function CustomerDashboard() {
           </div>
         </section>
 
-        <section className="mt-4 rounded-2xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">
+        <section className="mt-4 rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+          <p className="text-sm text-stone-600">
             Unpaid invoices
           </p>
 
-          <p className="mt-1 text-2xl font-bold text-slate-900">
+          <p className="mt-1 text-2xl font-bold text-stone-800">
             {unpaidInvoices}
           </p>
         </section>
 
-        <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+        <section className="mt-8 rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
           <div className="mb-6">
-            <h3 className="text-xl font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-stone-800">
               Your invoices
             </h3>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-stone-600">
               View your current invoices and payment methods.
             </p>
           </div>
 
           {invoices.length === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-stone-600">
               You currently have no invoices.
             </p>
           ) : (
@@ -291,14 +291,14 @@ export default function CustomerDashboard() {
               {invoices.map((invoice) => (
                 <div
                   key={invoice.id}
-                  className="flex flex-col justify-between gap-4 rounded-xl border border-slate-200 p-4 md:flex-row md:items-center"
+                  className="flex flex-col justify-between gap-4 rounded-xl border border-pink-100 p-4 md:flex-row md:items-center"
                 >
                   <div>
-                    <p className="font-semibold text-slate-900">
+                    <p className="font-semibold text-stone-800">
                       {invoice.invoice_number}
                     </p>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-stone-600">
                       Due:{" "}
                       {invoice.due_date
                         ? new Date(
@@ -309,7 +309,7 @@ export default function CustomerDashboard() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3">
-                    <p className="font-semibold text-slate-900">
+                    <p className="font-semibold text-stone-800">
                       {formatCurrency(Number(invoice.amount))}
                     </p>
 
@@ -321,7 +321,7 @@ export default function CustomerDashboard() {
                       {invoice.payment_type || "Unknown"}
                     </span>
 
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-700">
+                    <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold capitalize text-stone-700">
                       {invoice.status}
                     </span>
                   </div>
