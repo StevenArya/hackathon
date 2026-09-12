@@ -257,3 +257,30 @@ tbody tr, .list-row, .activity-item {
 .chart-bars { transform-box: fill-box; transform-origin: center bottom; transition: transform 0.2s ease; }
 .chart-month:hover .chart-bars, .chart-month:focus .chart-bars { transform: scale(1.02); }
 @media (prefers-reduced-motion: reduce) { .chart-bars { transform: none !important; } }
+
+/* Small-screen controls fit the viewport and stay easy to tap. */
+.modal-form input, .modal-form select { box-sizing: border-box; min-width: 0; }
+@media (max-width: 639px) {
+  .primary-button, .secondary-button, .icon-button, .select-control {
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .icon-button { min-width: 44px; }
+  .modal-form input, .modal-form select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .modal-form input[type="date"] { appearance: none; }
+  .notification-panel {
+    position: fixed;
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+    width: min(360px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    z-index: 60;
+  }
+  .notification-panel button { min-height: 44px; min-width: 44px; }
+}

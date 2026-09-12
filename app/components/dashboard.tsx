@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 
 import {
   currency,
@@ -182,10 +183,11 @@ export default function Dashboard({
               </button>
 
               {/* Notification Panel */}
-              {notifications && (
-                <div
-                  className="notification-panel"
-                  role="region"
+              {notifications && createPortal(
+                <dialog
+                  ref={node => { if (node && !node.open) node.showModal(); }}
+                  onCancel={() => setNotifications(false)}
+                  className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-sm overflow-y-auto rounded-2xl border border-pink-200 bg-white p-6 text-stone-700 shadow-xl shadow-pink-200/50 backdrop:bg-black/30"
                   aria-label="Notifications"
                 >
                   <div className="flex justify-between">
@@ -194,7 +196,7 @@ export default function Dashboard({
                     </h2>
 
                     <button
-                      aria-label="Close notifications"
+                      className="icon-button" aria-label="Close notifications"
                       onClick={() =>
                         setNotifications(false)
                       }
@@ -213,7 +215,7 @@ export default function Dashboard({
                   </p>
 
                   <button
-                    className="mt-3 text-xs text-pink-700"
+                    className="secondary-button mt-4 min-h-11 text-sm text-pink-800"
                     onClick={() => {
                       setActive("Invoices");
                       setNotifications(false);
@@ -221,7 +223,7 @@ export default function Dashboard({
                   >
                     Review invoices →
                   </button>
-                </div>
+                </dialog>, document.body
               )}
             </div>
           </header>

@@ -54,8 +54,8 @@ export default function AddCustomerModal({ open, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+      <div className="modal-form max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-stone-800">
@@ -70,7 +70,7 @@ export default function AddCustomerModal({ open, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="text-xl text-stone-500 hover:text-stone-700"
+            aria-label="Close dialog" className="icon-button"
           >
             ×
           </button>
@@ -87,7 +87,7 @@ export default function AddCustomerModal({ open, onClose }: Props) {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="PT Maju Jaya"
-              className="w-full rounded-lg border border-pink-100 px-3 py-2.5 text-sm outline-none focus:border-pink-400"
+              className="min-w-0 max-w-full w-full rounded-lg border border-pink-100 px-3 py-2.5 text-sm outline-none focus:border-pink-400"
             />
           </div>
 
@@ -101,7 +101,7 @@ export default function AddCustomerModal({ open, onClose }: Props) {
               value={customerCode}
               onChange={(event) => setCustomerCode(event.target.value)}
               placeholder="CUST-004"
-              className="w-full rounded-lg border border-pink-100 px-3 py-2.5 text-sm outline-none focus:border-pink-400"
+              className="min-w-0 max-w-full w-full rounded-lg border border-pink-100 px-3 py-2.5 text-sm outline-none focus:border-pink-400"
             />
           </div>
 
@@ -114,7 +114,7 @@ export default function AddCustomerModal({ open, onClose }: Props) {
               value={bankReference}
               onChange={(event) => setBankReference(event.target.value)}
               placeholder="Optional"
-              className="w-full rounded-lg border border-pink-100 px-3 py-2.5 text-sm outline-none focus:border-pink-400"
+              className="min-w-0 max-w-full w-full rounded-lg border border-pink-100 px-3 py-2.5 text-sm outline-none focus:border-pink-400"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function AddCustomerModal({ open, onClose }: Props) {
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value)}
-              className="w-full rounded-lg border border-pink-100 bg-white px-3 py-2.5 text-sm outline-none focus:border-pink-400"
+              className="min-w-0 max-w-full w-full rounded-lg border border-pink-100 bg-white px-3 py-2.5 text-sm outline-none focus:border-pink-400"
             >
               <option value="good">Good</option>
               <option value="level_1">Level 1</option>

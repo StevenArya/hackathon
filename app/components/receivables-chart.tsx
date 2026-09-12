@@ -87,13 +87,13 @@ export function ReceivablesChart({
             : "Your receivables chart will appear when invoices are added."}
         </div>
       ) : (
-        <div className="mt-5 overflow-x-auto">
-          <div className="relative min-w-[300px] pt-28">
+        <div className="mt-5">
+          <div className="relative min-w-0 pt-36">
             <svg
               viewBox="0 0 960 235"
               role="group"
               aria-label="Current outstanding and overdue invoice balances by due month"
-              className="min-w-[500px] w-full"
+              className="w-full"
             >
               <title>Receivables by due month, in Indonesian rupiah</title>
               {[0, 1, 2, 3, 4].map((tick) => (
@@ -127,8 +127,8 @@ export function ReceivablesChart({
                     tabIndex={0}
                     role="img"
                     aria-label={`${month.key}: Outstanding ${currency(month.outstanding)}; overdue ${currency(month.overdue)}`}
-                    onMouseEnter={() => setActiveMonth(month.key)}
-                    onMouseLeave={() => setActiveMonth(null)}
+                    onPointerEnter={event => { if (event.pointerType === "mouse") setActiveMonth(month.key); }}
+                    onPointerLeave={event => { if (event.pointerType === "mouse") setActiveMonth(null); }}
                     onFocus={() => setActiveMonth(month.key)}
                     onBlur={() => setActiveMonth(null)}
                     onClick={() => setActiveMonth(month.key)}
@@ -137,9 +137,9 @@ export function ReceivablesChart({
                     }}
                   >
                     <rect
-                      x={x - width - 8}
+                      x={x - 885 / months.length / 2}
                       y="10"
-                      width={width * 2 + 16}
+                      width={885 / months.length}
                       height="214"
                       fill="transparent"
                     />
@@ -178,7 +178,7 @@ export function ReceivablesChart({
               <div
                 role="tooltip"
                 style={{
-                  left: `clamp(8px, calc(${tooltipLeft}% - 110px), calc(100% - 208px))`
+                  left: `clamp(8px, calc(${tooltipLeft}% - 90px), calc(100% - 188px))`
                 }}
                 className="pointer-events-none absolute top-0 w-[180px] rounded-xl border border-pink-200 bg-white p-3 text-xs text-stone-700 shadow-lg shadow-pink-200/50"
               >
