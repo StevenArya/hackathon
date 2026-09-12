@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/src/lib/supabase/client";
+import PaymentProofUpload from "@/app/components/payment-proof-upload";
 
 type Profile = {
   id: string;
@@ -279,7 +280,7 @@ export default function CustomerDashboard() {
             </h3>
 
             <p className="text-sm text-stone-600">
-              View your current invoices and payment methods.
+              View your current invoices, payment methods, and submit proof of payment.
             </p>
           </div>
 
@@ -322,9 +323,19 @@ export default function CustomerDashboard() {
                       {invoice.payment_type || "Unknown"}
                     </span>
 
-                    <span className="rounded-full bg-yellow-50 px-3 py-1 text-sm  capitalize text-stone-700 font-semibold">
+                    <span
+                      className={`rounded-full px-3 py-1 text-sm font-semibold capitalize ${
+                        invoice.status === "paid"
+                          ? "bg-green-100 text-green-700"
+                          : invoice.status === "overdue"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-50 text-stone-700"
+                      }`}
+                    >
                       {invoice.status}
                     </span>
+
+                    <PaymentProofUpload invoice={invoice} />
                   </div>
                 </div>
               ))}
