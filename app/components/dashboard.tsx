@@ -105,7 +105,7 @@ export default function Dashboard({
       <div className="main-shell">
         {/* Topbar */}
         <div className="topbar">
-          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+          <div className="flex items-center gap-3 text-sm text-stone-500">
             <span>Workspace</span>
 
             <Icon
@@ -113,17 +113,17 @@ export default function Dashboard({
               className="!h-3 !w-3"
             />
 
-            <span className="text-slate-600">
+            <span className="text-stone-600">
               {active}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden text-[11px] text-slate-400 sm:block">
+            <span className="hidden text-sm text-stone-500 sm:block">
               Credit management
             </span>
 
-            <span className="ml-3 flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600">
+            <span className="ml-3 flex h-10 w-10 items-center justify-center rounded-full bg-yellow-50 text-sm font-semibold text-stone-600">
               CI
             </span>
           </div>
@@ -133,8 +133,8 @@ export default function Dashboard({
           {/* Page Header */}
           <header className="mb-7 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[.14em] text-slate-400">
-                <span className="h-1 w-1 rounded-full bg-blue-500" />
+              <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[.14em] text-stone-500">
+                <span className="h-1 w-1 rounded-full bg-pink-300" />
                 Your business at a glance
               </div>
 
@@ -142,7 +142,7 @@ export default function Dashboard({
                 {titles[active]}
               </h1>
 
-              <p className="mt-1.5 text-xs text-slate-500">
+              <p className="mt-1.5 text-xs text-stone-600">
                 {subtitles[active]}
               </p>
             </div>
@@ -160,7 +160,7 @@ export default function Dashboard({
                 <Icon name="bell" />
 
                 {data.overdue.length > 0 && (
-                  <span className="absolute right-2 top-1.5 h-1.5 w-1.5 rounded-full border border-white bg-blue-500" />
+                  <span className="absolute right-2 top-1.5 h-1.5 w-1.5 rounded-full border border-white bg-pink-300" />
                 )}
               </button>
 
@@ -202,14 +202,14 @@ export default function Dashboard({
                     </button>
                   </div>
 
-                  <p className="mt-3 text-xs leading-6 text-slate-500">
+                  <p className="mt-3 text-xs leading-6 text-stone-600">
                     {error
                       ? "Your data connection needs attention."
                       : `${data.overdue.length} overdue invoices and ${data.dueSoon.length} invoices due in the next 7 days.`}
                   </p>
 
                   <button
-                    className="mt-3 text-xs text-blue-600"
+                    className="mt-3 text-xs text-pink-700"
                     onClick={() => {
                       setActive("Invoices");
                       setNotifications(false);
@@ -250,11 +250,11 @@ export default function Dashboard({
           {active === "Dashboard" && (
             <>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xs font-medium text-slate-600">
+                <h2 className="text-xs font-medium text-stone-600">
                   Portfolio snapshot
                 </h2>
 
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px] text-stone-500">
                   As of{" "}
                   {new Date(
                     `${today}T00:00:00Z`
@@ -322,13 +322,13 @@ export default function Dashboard({
 
               <div className="mt-5 grid gap-5 lg:grid-cols-[1.25fr_1fr]">
                 <section className="card overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                  <div className="flex items-center justify-between border-b border-pink-100 px-6 py-5">
                     <div>
                       <h2 className="section-title">
                         Activity Feed
                       </h2>
 
-                      <p className="mt-1 text-[11px] text-slate-400">
+                      <p className="mt-1 text-[11px] text-stone-500">
                         Current invoice and
                         customer signals
                       </p>
@@ -340,7 +340,7 @@ export default function Dashboard({
                           !expanded
                         )
                       }
-                      className="flex items-center gap-1 text-[11px] font-medium text-blue-600"
+                      className="flex items-center gap-1 text-[11px] font-medium text-pink-700"
                     >
                       {expanded
                         ? "Show less"
@@ -361,7 +361,7 @@ export default function Dashboard({
                     unavailable={!!error}
                   />
 
-                  <p className="border-t border-slate-100 px-6 py-3 text-[10px] text-slate-400">
+                  <p className="border-t border-pink-100 px-6 py-3 text-[10px] text-stone-500">
                     Based on current records;
                     payment and risk change
                     times are not available.
@@ -383,7 +383,7 @@ export default function Dashboard({
           {(active === "Customers" ||
             active === "Invoices") && (
             <section className="card overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-pink-100 p-5">
                 <div className="flex flex-wrap items-center gap-3">
                   <h2 className="section-title">
                     {active === "Customers"
@@ -415,7 +415,7 @@ export default function Dashboard({
                 </div>
 
                 {/* Search */}
-                <label className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-slate-400">
+                <label className="flex items-center gap-2 rounded-md border border-pink-100 px-3 py-2 text-stone-500">
                   <Icon
                     name="search"
                     className="!h-4 !w-4"
@@ -430,7 +430,7 @@ export default function Dashboard({
                       )
                     }
                     placeholder={`Search ${active.toLowerCase()}…`}
-                    className="w-44 text-xs text-slate-700 outline-none"
+                    className="w-44 text-xs text-stone-700 outline-none"
                   />
                 </label>
               </div>
@@ -609,7 +609,7 @@ export default function Dashboard({
                     0
                   : filteredInvoices.length ===
                     0)) && (
-                <p className="p-10 text-center text-sm text-slate-400">
+                <p className="p-10 text-center text-sm text-stone-500">
                   {error
                     ? "Data unavailable"
                     : "No matching records."}
@@ -633,14 +633,14 @@ export default function Dashboard({
             <section className="card px-6 py-20 text-center">
               <Icon
                 name="folder"
-                className="mx-auto !h-10 !w-10 text-blue-400"
+                className="mx-auto !h-10 !w-10 text-pink-300"
               />
 
               <h2 className="mt-5 text-lg font-semibold">
                 Your documents, together
               </h2>
 
-              <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500">
+              <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-stone-600">
                 Document management isn’t
                 connected yet. Your existing
                 customer and invoice records
@@ -728,7 +728,7 @@ export default function Dashboard({
           )}
 
           {/* Footer */}
-          <footer className="mt-7 flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-400">
+          <footer className="mt-7 flex flex-wrap items-center justify-between gap-2 text-[10px] text-stone-500">
             <span>
               Credit Intelligence · Make
               confident credit decisions.
