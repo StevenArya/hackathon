@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   compact,
   currency,
@@ -18,6 +18,16 @@ export function ReceivablesChart({
 }) {
   const [range, setRange] = useState("6");
   const [activeMonth, setActiveMonth] = useState<string | null>(null);
+  const scrollArea = useRef<HTMLDivElement>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<number | null>(null);
+  function selectMonth(key: string) {
+    setActiveMonth(key);
+    const area = scrollArea.current;
+    if (area) {
+      const index = months.findIndex(month => month.key === key);
+      setTooltipPosition((65 + (index + 0.5) * 885 / months.length) / 960 * area.scrollWidth - area.scrollLeft);
+    }
+  }
   const unpaid = invoices.filter((i) => i.status !== "paid");
   const months = Array.from({ length: Number(range) }, (_, index) => {
     const date = new Date(`${today}T00:00:00Z`);
@@ -89,11 +99,12 @@ export function ReceivablesChart({
       ) : (
         <div className="mt-5">
           <div className="relative min-w-0 pt-36">
+            <div ref={scrollArea} className="overflow-x-auto overscroll-x-contain pb-2" onScroll={() => setActiveMonth(null)} tabIndex={0} role="region" aria-label="Scrollable receivables chart">
             <svg
               viewBox="0 0 960 235"
               role="group"
               aria-label="Current outstanding and overdue invoice balances by due month"
-              className="w-full"
+              className="min-w-[600px] w-full"
             >
               <title>Receivables by due month, in Indonesian rupiah</title>
               {[0, 1, 2, 3, 4].map((tick) => (
@@ -127,11 +138,11 @@ export function ReceivablesChart({
                     tabIndex={0}
                     role="img"
                     aria-label={`${month.key}: Outstanding ${currency(month.outstanding)}; overdue ${currency(month.overdue)}`}
-                    onPointerEnter={event => { if (event.pointerType === "mouse") setActiveMonth(month.key); }}
+                    onPointerEnter={event => { if (event.pointerType === "mouse") selectMonth(month.key); }}
                     onPointerLeave={event => { if (event.pointerType === "mouse") setActiveMonth(null); }}
-                    onFocus={() => setActiveMonth(month.key)}
+                    onFocus={() => selectMonth(month.key)}
                     onBlur={() => setActiveMonth(null)}
-                    onClick={() => setActiveMonth(month.key)}
+                    onClick={() => selectMonth(month.key)}
                     onKeyDown={(event) => {
                       if (event.key === "Escape") setActiveMonth(null);
                     }}
@@ -173,12 +184,12 @@ export function ReceivablesChart({
                   </g>
                 );
               })}
-            </svg>
+            </svg></div>
             {selectedMonth && (
               <div
                 role="tooltip"
                 style={{
-                  left: `clamp(8px, calc(${tooltipLeft}% - 90px), calc(100% - 188px))`
+                  left: `clamp(8px, calc(${tooltipPosition !== null ? `${tooltipPosition}px` : `${tooltipLeft}%`} - 90px), calc(100% - 188px))`
                 }}
                 className="pointer-events-none absolute top-0 w-[180px] rounded-xl border border-pink-200 bg-white p-3 text-xs text-stone-700 shadow-lg shadow-pink-200/50"
               >
