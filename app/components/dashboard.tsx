@@ -137,9 +137,9 @@ export default function Dashboard({
           {/* Page Header */}
           <header className="mb-7 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[.14em] text-stone-500">
+              <div className="mb-2 flex items-center gap-2 text-[10px] font-medium tracking-[.14em] text-stone-500">
                 <span className="h-3 w-3 rounded-full bg-pink-300" />
-                Your business at a glance
+                WELCOME TO InVora.
               </div>
 
               <h1 className="text-[27px] font-semibold tracking-tight sm:text-[30px]">
@@ -254,9 +254,7 @@ export default function Dashboard({
           {active === "Dashboard" && (
             <>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xs font-medium text-stone-600">
-                  Portfolio snapshot
-                </h2>
+                
 
                 <span className="text-sm text-stone-500 font-semibold">
                   As of{" "}
