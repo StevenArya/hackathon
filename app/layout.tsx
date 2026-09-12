@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "Creditly | Credit Overview",
+  title: "InVora | Credit Overview",
   description: "Monitor receivables, customer risk, and upcoming payments in your credit management workspace.",
 };
 export default function RootLayout({ children }: LayoutProps<"/">) {

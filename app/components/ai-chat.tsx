@@ -100,19 +100,19 @@ export default function AIChat() {
   }
 
   return (
-    <div className="flex h-[620px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-6 py-5">
+    <div className="flex h-[620px] flex-col overflow-hidden rounded-2xl border border-pink-100 bg-white shadow-xl shadow-pink-200/50">
+      <div className="border-b border-pink-100 px-6 py-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-lg text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-200 text-lg text-pink-800">
             ✦
           </div>
 
           <div>
-            <h2 className="font-semibold text-slate-800">
+            <h2 className="font-semibold text-pink-500">
               Invora AI
             </h2>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-stone-500">
               AI credit & receivables assistant
             </p>
           </div>
@@ -132,8 +132,8 @@ export default function AIChat() {
             <div
               className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 ${
                 message.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-700"
+                  ? "bg-pink-200 text-pink-800"
+                  : "bg-yellow-50 text-stone-700"
               }`}
             >
               {message.content}
@@ -143,7 +143,7 @@ export default function AIChat() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-500">
+            <div className="rounded-2xl bg-yellow-50 px-4 py-3 text-sm text-stone-500">
               Invora is analysing your data...
             </div>
           </div>
@@ -151,8 +151,8 @@ export default function AIChat() {
       </div>
 
       {messages.length <= 1 && (
-        <div className="border-t border-slate-100 px-6 py-4">
-          <p className="mb-3 text-xs font-medium text-slate-500">
+        <div className="border-t border-pink-100 px-6 py-4">
+          <p className="mb-3 text-xs font-medium text-stone-500">
             Suggested questions
           </p>
 
@@ -162,7 +162,7 @@ export default function AIChat() {
                 key={question}
                 type="button"
                 onClick={() => sendMessage(question)}
-                className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                className="rounded-full border border-pink-100 px-3 py-1.5 text-xs text-stone-600 transition hover:border-pink-200 hover:bg-stone-50 hover:text-pink-800"
               >
                 {question}
               </button>
@@ -173,7 +173,7 @@ export default function AIChat() {
 
       <form
         onSubmit={handleSubmit}
-        className="border-t border-slate-100 p-4"
+        className="border-t border-pink-100 p-4"
       >
         <div className="flex gap-2">
           <input
@@ -183,13 +183,13 @@ export default function AIChat() {
             }
             placeholder="Ask Invora about your receivables..."
             disabled={loading}
-            className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500"
+            className="flex-1 rounded-xl border border-pink-100 px-4 py-3 text-sm outline-none transition focus:border-pink-400"
           />
 
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-pink-200 px-5 py-3 text-sm font-medium text-pink-800 transition hover:bg-pink-300 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Send
           </button>

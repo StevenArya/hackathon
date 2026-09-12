@@ -74,6 +74,7 @@ export default function CustomerDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [visibleCount, setVisibleCount] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -165,7 +166,7 @@ export default function CustomerDashboard() {
   if (error) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-yellow-50 px-4">
-        <div className="rounded-2xl border border-pink-100 bg-white p-8 shadow-sm">
+        <div className="hover-card rounded-2xl border border-pink-100 bg-white p-8 shadow-sm">
           <p className="text-red-600">{error}</p>
 
           <button
@@ -224,7 +225,7 @@ export default function CustomerDashboard() {
         </div>
 
         <section className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+          <div className="hover-card rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
             <p className="text-sm text-stone-600">
               Customer ID
             </p>
@@ -234,7 +235,7 @@ export default function CustomerDashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+          <div className="hover-card rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
             <p className="text-sm text-stone-600">
               Outstanding
             </p>
@@ -244,7 +245,7 @@ export default function CustomerDashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+          <div className="hover-card rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
             <p className="text-sm text-stone-600">
               Account status
             </p>
@@ -261,7 +262,7 @@ export default function CustomerDashboard() {
           </div>
         </section>
 
-        <section className="mt-4 rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+        <section className="hover-card mt-4 rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
           <p className="text-sm text-stone-600">
             Unpaid invoices
           </p>
@@ -271,7 +272,7 @@ export default function CustomerDashboard() {
           </p>
         </section>
 
-        <section className="mt-8 rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+        <section className="hover-card mt-8 rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
           <div className="mb-6">
             <h3 className="text-xl font-bold text-stone-800">
               Your invoices
@@ -288,7 +289,7 @@ export default function CustomerDashboard() {
             </p>
           ) : (
             <div className="space-y-3">
-              {invoices.map((invoice) => (
+              {invoices.slice(0, visibleCount).map((invoice) => (
                 <div
                   key={invoice.id}
                   className="flex flex-col justify-between gap-4 rounded-xl border border-pink-100 p-4 md:flex-row md:items-center"
@@ -321,12 +322,13 @@ export default function CustomerDashboard() {
                       {invoice.payment_type || "Unknown"}
                     </span>
 
-                    <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold capitalize text-stone-700">
+                    <span className="rounded-full bg-yellow-50 px-3 py-1 text-sm  capitalize text-stone-700 font-semibold">
                       {invoice.status}
                     </span>
                   </div>
                 </div>
               ))}
+              {invoices.length > visibleCount && <div className="flex justify-center pt-4"><button type="button" className="secondary-button" onClick={() => setVisibleCount(count => count + 10)}>Show more</button></div>}
             </div>
           )}
         </section>

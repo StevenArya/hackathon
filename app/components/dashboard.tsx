@@ -41,8 +41,9 @@ export default function Dashboard({
   const [addInvoiceOpen, setAddInvoiceOpen] = useState(false);
   const [invoiceScannerOpen, setInvoiceScannerOpen] = useState(false);
   const [notifications, setNotifications] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+
   const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(10);
   const [pending, startTransition] = useTransition();
 
   const router = useRouter();
@@ -100,7 +101,7 @@ export default function Dashboard({
         active={active}
         connected={!error}
         onNavigate={(section) => {
-          setActive(section);
+          setActive(section); setVisibleCount(10);
           setQuery("");
         }}
       />
@@ -109,24 +110,24 @@ export default function Dashboard({
         {/* Topbar */}
         <div className="topbar">
           <div className="flex items-center gap-3 text-sm text-stone-500">
-            <span>Workspace</span>
+            <span className="text-[1.05em] font-semibold">Workspace</span>
 
             <Icon
               name="chevron"
               className="!h-3 !w-3"
             />
 
-            <span className="text-stone-600">
+            <span className="text-stone-600 text-[1.05em] font-semibold">
               {active}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden text-sm text-stone-500 sm:block">
+            <span className="hidden text-base text-stone-500 sm:block font-semibold">
               Credit management
             </span>
 
-            <span className="ml-3 flex h-10 w-10 items-center justify-center rounded-full bg-yellow-50 text-sm font-semibold text-stone-600">
+            <span className="ml-3 flex h-10 w-10 items-center justify-center rounded-full bg-yellow-50 text-base  text-stone-600 font-semibold">
               CI
             </span>
           </div>
@@ -137,7 +138,7 @@ export default function Dashboard({
           <header className="mb-7 flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[.14em] text-stone-500">
-                <span className="h-1 w-1 rounded-full bg-pink-300" />
+                <span className="h-3 w-3 rounded-full bg-pink-300" />
                 Your business at a glance
               </div>
 
@@ -257,7 +258,7 @@ export default function Dashboard({
                   Portfolio snapshot
                 </h2>
 
-                <span className="text-[10px] text-stone-500">
+                <span className="text-sm text-stone-500 font-semibold">
                   As of{" "}
                   {new Date(
                     `${today}T00:00:00Z`
@@ -336,31 +337,13 @@ export default function Dashboard({
                         customer signals
                       </p>
                     </div>
-
-                    <button
-                      onClick={() =>
-                        setExpanded(
-                          !expanded
-                        )
-                      }
-                      className="flex items-center gap-1 text-[11px] font-medium text-pink-700"
-                    >
-                      {expanded
-                        ? "Show less"
-                        : "View all"}
-
-                      <Icon
-                        name="arrow"
-                        className="!h-3.5 !w-3.5"
-                      />
-                    </button>
                   </div>
 
                   <ActivityFeed
                     customers={customers}
                     invoices={invoices}
                     today={today}
-                    expanded={expanded}
+
                     unavailable={!!error}
                   />
 
@@ -400,7 +383,7 @@ export default function Dashboard({
                       onClick={() => setAddCustomerOpen(true)}
                       className="primary-button"
                     >
-                      <span className="text-base leading-none">+</span>
+                      <span className="text-base leading-none font-semibold"></span>
                       Add Customer
                     </button>
                   )}
@@ -412,7 +395,7 @@ export default function Dashboard({
                         onClick={() => setInvoiceScannerOpen(true)}
                         className="secondary-button"
                       >
-                        <span className="text-base leading-none">📷</span>
+                        <span className="text-base leading-none font-semibold"> </span>
                         Scan Invoice
                       </button>
 
@@ -420,7 +403,7 @@ export default function Dashboard({
                         onClick={() => setAddInvoiceOpen(true)}
                         className="primary-button"
                       >
-                        <span className="text-base leading-none">+</span>
+                        <span className="text-base leading-none font-semibold"> </span>
                         Add Invoice
                       </button>
                     </>
@@ -437,11 +420,7 @@ export default function Dashboard({
                   <input
                     aria-label={`Search ${active.toLowerCase()}`}
                     value={query}
-                    onChange={(event) =>
-                      setQuery(
-                        event.target.value
-                      )
-                    }
+                    onChange={(event) => { setQuery(event.target.value); setVisibleCount(10); }}
                     placeholder={`Search ${active.toLowerCase()}…`}
                     className="w-44 text-xs text-stone-700 outline-none"
                   />
@@ -478,7 +457,7 @@ export default function Dashboard({
                   <tbody>
                     {active ===
                     "Customers"
-                      ? filteredCustomers.map(
+                      ? filteredCustomers.slice(0, visibleCount).map(
                           (
                             customer
                           ) => (
@@ -541,7 +520,7 @@ export default function Dashboard({
                             </tr>
                           )
                         )
-                      : filteredInvoices.map(
+                      : filteredInvoices.slice(0, visibleCount).map(
                           (invoice) => {
                             const customer =
                               customers.find(
@@ -615,6 +594,7 @@ export default function Dashboard({
                 </table>
               </div>
 
+              {!error && (active === "Customers" ? filteredCustomers.length : filteredInvoices.length) > visibleCount && <div className="flex justify-center border-t border-pink-100 p-4"><button type="button" className="secondary-button" onClick={() => setVisibleCount(count => count + 10)}>Show more</button></div>}
               {/* Empty State */}
               {(error ||
                 (active === "Customers"
@@ -739,12 +719,9 @@ export default function Dashboard({
 
           {/* Footer */}
           <footer className="mt-7 flex flex-wrap items-center justify-between gap-2 text-[10px] text-stone-500">
-            <span>
-              Credit Intelligence · Make
-              confident credit decisions.
-            </span>
+        
 
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 text-[1.05em] font-semibold">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
                   error

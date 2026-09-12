@@ -269,13 +269,13 @@ export default function InvoiceScannerModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 px-4 py-8">
-      <div className="mx-auto w-full max-w-5xl rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+      <div className="mx-auto w-full max-w-5xl rounded-2xl border border-pink-100 bg-white shadow-2xl shadow-pink-200/50">
+        <div className="flex items-center justify-between border-b border-pink-100 px-6 py-5">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-lg font-semibold text-pink-500">
               Scan invoice / faktur
             </h2>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-stone-500">
               Take a photo or upload an invoice. Invora will classify it and
               match the customer.
             </p>
@@ -284,7 +284,7 @@ export default function InvoiceScannerModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-2xl text-slate-400 hover:text-slate-700"
+            className="text-2xl text-stone-500 hover:text-stone-700"
             aria-label="Close scanner"
           >
             ×
@@ -293,7 +293,7 @@ export default function InvoiceScannerModal({
 
         <div className="grid gap-6 p-6 lg:grid-cols-[1fr_1.05fr]">
           <section>
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
+            <div className="rounded-2xl border border-dashed border-pink-200 bg-yellow-50 p-5">
               <label className="block cursor-pointer">
                 <input
                   type="file"
@@ -304,15 +304,15 @@ export default function InvoiceScannerModal({
                 />
 
                 <div className="text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-2xl">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100 text-2xl">
                     📷
                   </div>
 
-                  <p className="text-sm font-medium text-slate-800">
+                  <p className="text-sm font-medium text-stone-800">
                     Take photo or choose invoice
                   </p>
 
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-stone-500">
                     JPG, PNG or phone camera
                   </p>
                 </div>
@@ -322,7 +322,7 @@ export default function InvoiceScannerModal({
             {imageDataUrl && (
               <div className="mt-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs text-slate-500">{fileName}</span>
+                  <span className="text-sm text-stone-500 font-semibold">{fileName}</span>
 
                   <button
                     type="button"
@@ -340,7 +340,7 @@ export default function InvoiceScannerModal({
                 <img
                   src={imageDataUrl}
                   alt="Invoice preview"
-                  className="max-h-[420px] w-full rounded-xl border border-slate-200 object-contain"
+                  className="max-h-[420px] w-full rounded-xl border border-pink-100 object-contain"
                 />
 
                 <button
@@ -357,25 +357,25 @@ export default function InvoiceScannerModal({
             <button
               type="button"
               onClick={() => setShowRules((current) => !current)}
-              className="mt-5 text-xs font-medium text-blue-600"
+              className="mt-5 text-xs font-medium text-pink-500"
             >
               {showRules ? "Hide" : "Edit"} classification identifiers
             </button>
 
             {showRules && (
-              <div className="mt-3 space-y-4 rounded-xl border border-slate-200 p-4">
+              <div className="mt-3 space-y-4 rounded-xl border border-pink-100 p-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-sm font-semibold text-pink-500">
                     Business-specific identifiers
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                  <p className="mt-1 text-xs leading-5 text-stone-500">
                     Tell Invora how your business recognises paid, credit and
                     loan documents. Use comma-separated examples.
                   </p>
                 </div>
 
                 {loadingRules ? (
-                  <p className="text-xs text-slate-500">Loading rules…</p>
+                  <p className="text-xs text-stone-500">Loading rules…</p>
                 ) : (
                   categories.map((category) => {
                     const rule = rules.find(
@@ -387,13 +387,13 @@ export default function InvoiceScannerModal({
                     return (
                       <div
                         key={category}
-                        className="rounded-lg bg-slate-50 p-3"
+                        className="rounded-lg bg-yellow-50 p-3"
                       >
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-700">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-700">
                           {rule.label}
                         </p>
 
-                        <label className="block text-xs text-slate-600">
+                        <label className="block text-xs text-stone-600">
                           Keywords / stamps
                           <input
                             value={rule.keywords.join(", ")}
@@ -404,12 +404,12 @@ export default function InvoiceScannerModal({
                                 event.target.value
                               )
                             }
-                            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-500"
+                            className="mt-1 w-full rounded-lg border border-pink-100 bg-white px-3 py-2 text-xs outline-none focus:border-pink-400"
                             placeholder="PAID, LUNAS, NET 30"
                           />
                         </label>
 
-                        <label className="mt-3 block text-xs text-slate-600">
+                        <label className="mt-3 block text-xs text-stone-600">
                           Title examples
                           <input
                             value={rule.title_patterns.join(", ")}
@@ -420,12 +420,12 @@ export default function InvoiceScannerModal({
                                 event.target.value
                               )
                             }
-                            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-500"
+                            className="mt-1 w-full rounded-lg border border-pink-100 bg-white px-3 py-2 text-xs outline-none focus:border-pink-400"
                             placeholder="Credit Invoice, Loan Agreement"
                           />
                         </label>
 
-                        <label className="mt-3 block text-xs text-slate-600">
+                        <label className="mt-3 block text-xs text-stone-600">
                           Colour / visual hint
                           <input
                             value={rule.color_hint ?? ""}
@@ -436,7 +436,7 @@ export default function InvoiceScannerModal({
                                 event.target.value
                               )
                             }
-                            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-500"
+                            className="mt-1 w-full rounded-lg border border-pink-100 bg-white px-3 py-2 text-xs outline-none focus:border-pink-400"
                             placeholder="green header, red PAID stamp"
                           />
                         </label>
@@ -459,48 +459,48 @@ export default function InvoiceScannerModal({
 
           <section>
             {!analysis ? (
-              <div className="flex min-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center">
+              <div className="flex min-h-[360px] items-center justify-center rounded-2xl border border-pink-100 bg-yellow-50 p-8 text-center">
                 <div>
                   <div className="text-3xl">✦</div>
-                  <p className="mt-3 text-sm font-medium text-slate-700">
+                  <p className="mt-3 text-sm font-medium text-stone-700">
                     AI analysis will appear here
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                  <p className="mt-1 text-xs leading-5 text-stone-500">
                     Invora checks text, title, visual markers, colour hints and
                     customer identifiers.
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-slate-200 p-5">
+              <div className="rounded-2xl border border-pink-100 p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-slate-400">
+                    <p className="text-xs uppercase tracking-wide text-stone-500">
                       Classification
                     </p>
-                    <h3 className="mt-1 text-xl font-semibold capitalize text-slate-900">
+                    <h3 className="mt-1 text-xl font-semibold capitalize text-stone-800">
                       {analysis.classification === "paid"
                         ? "Paid in full"
                         : analysis.classification}
                     </h3>
                   </div>
 
-                  <div className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                  <div className="rounded-full bg-stone-50 px-3 py-1 text-xs font-medium text-pink-800">
                     {Math.round(analysis.confidence * 100)}% confidence
                   </div>
                 </div>
 
                 <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <dt className="text-xs text-slate-400">Invoice</dt>
-                    <dd className="mt-1 font-medium text-slate-800">
+                    <dt className="text-xs text-stone-500">Invoice</dt>
+                    <dd className="mt-1 font-medium text-stone-800">
                       {analysis.invoiceNumber ?? "Not detected"}
                     </dd>
                   </div>
 
                   <div>
-                    <dt className="text-xs text-slate-400">Amount</dt>
-                    <dd className="mt-1 font-medium text-slate-800">
+                    <dt className="text-xs text-stone-500">Amount</dt>
+                    <dd className="mt-1 font-medium text-stone-800">
                       {analysis.amount
                         ? new Intl.NumberFormat("id-ID", {
                             style: "currency",
@@ -512,31 +512,31 @@ export default function InvoiceScannerModal({
                   </div>
 
                   <div>
-                    <dt className="text-xs text-slate-400">Issue date</dt>
-                    <dd className="mt-1 font-medium text-slate-800">
+                    <dt className="text-xs text-stone-500">Issue date</dt>
+                    <dd className="mt-1 font-medium text-stone-800">
                       {analysis.issueDate ?? "Not detected"}
                     </dd>
                   </div>
 
                   <div>
-                    <dt className="text-xs text-slate-400">Due date</dt>
-                    <dd className="mt-1 font-medium text-slate-800">
+                    <dt className="text-xs text-stone-500">Due date</dt>
+                    <dd className="mt-1 font-medium text-stone-800">
                       {analysis.dueDate ?? "Not detected"}
                     </dd>
                   </div>
                 </dl>
 
-                <div className="mt-5 rounded-xl bg-slate-50 p-4">
-                  <p className="text-xs font-semibold text-slate-700">
+                <div className="mt-5 rounded-xl bg-yellow-50 p-4">
+                  <p className="text-xs font-semibold text-stone-700">
                     Customer match
                   </p>
 
                   {analysis.matchedCustomer ? (
                     <div className="mt-2">
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-stone-800">
                         {analysis.matchedCustomer.name}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-stone-500">
                         {analysis.matchedCustomer.customer_code}
                         {analysis.matchedCustomer.bank_ref_number
                           ? ` · Ref ${analysis.matchedCustomer.bank_ref_number}`
@@ -555,17 +555,17 @@ export default function InvoiceScannerModal({
                 </div>
 
                 <div className="mt-5">
-                  <p className="text-xs font-semibold text-slate-700">
+                  <p className="text-xs font-semibold text-stone-700">
                     Why Invora chose this
                   </p>
 
-                  <ul className="mt-2 space-y-1.5 text-xs leading-5 text-slate-600">
+                  <ul className="mt-2 space-y-1.5 text-xs leading-5 text-stone-600">
                     {analysis.matchedSignals.map((signal) => (
                       <li key={signal}>• {signal}</li>
                     ))}
                   </ul>
 
-                  <p className="mt-3 text-xs leading-5 text-slate-500">
+                  <p className="mt-3 text-xs leading-5 text-stone-500">
                     {analysis.reasoning}
                   </p>
                 </div>
@@ -590,7 +590,7 @@ export default function InvoiceScannerModal({
             )}
 
             {message && (
-              <div className="mt-4 rounded-lg bg-slate-100 p-3 text-xs text-slate-700">
+              <div className="mt-4 rounded-lg bg-yellow-50 p-3 text-xs text-stone-700">
                 {message}
               </div>
             )}

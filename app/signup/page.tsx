@@ -67,10 +67,10 @@ export default function SignupPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-yellow-50 px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-pink-100 bg-white p-8 shadow-xl shadow-y1 shadow-pink-200/50">
+      <div className="hover-card w-full max-w-md rounded-2xl border border-pink-100 bg-white p-8 shadow-xl shadow-y1 shadow-pink-200/50">
         <Link href="/" className="mb-8 inline-flex items-center gap-3 text-xl font-semibold text-stone-500">
         <span className="brand-mark" aria-hidden="true">
-          <span /><span /><span /></span>Creditly</Link>
+          <span /><span /><span /></span>InVora</Link>
         <div className="mb-8">
           <p className="mb-2 text-sm font-semibold text-stone-500">
             Credit Management

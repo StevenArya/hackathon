@@ -14,8 +14,8 @@ export default function LandingPage() {
               <span className="h-4 w-1 rounded-sm bg-white" />
             </div>
 
-            <span className="text-lg font-semibold text-stone-800">
-              Creditly
+            <span className="text-lg  text-stone-800 font-semibold">
+              InVora
             </span>
           </div>
 
@@ -46,7 +46,7 @@ export default function LandingPage() {
 
           <h1 className="max-w-2xl text-5xl font-semibold leading-tight tracking-tight text-stone-800 md:text-6xl">
             Manage receivables.
-            <span className="block text-pink-300">
+            <span className="block text-pink-300 text-[1.05em] font-semibold">
               Reduce payment risk.
             </span>
           </h1>
@@ -74,7 +74,7 @@ export default function LandingPage() {
         </div>
 
         {/* Dashboard Preview */}
-        <div className="rounded-2xl border border-pink-100 bg-white p-5 shadow-xl shadow-pink-200/50">
+        <div className="hover-card rounded-2xl border border-pink-100 bg-white p-5 shadow-xl shadow-pink-200/50">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <p className="text-xs text-stone-500">Credit Overview</p>
@@ -85,24 +85,24 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-pink-100 bg-pink-100 p-4">
+            <div className="hover-card rounded-xl border border-pink-100 bg-pink-100 p-4">
               <p className="text-xs font-bold text-stone-500">Outstanding</p>
               <p className="mt-2 text-xl font-semibold text-stone-800">
                 Rp 25.5M
               </p>
             </div>
 
-            <div className="rounded-xl border border-pink-100 bg-pink-100 p-4">
+            <div className="hover-card rounded-xl border border-pink-100 bg-pink-100 p-4">
               <p className="text-xs font-bold text-stone-500">Customers</p>
               <p className="mt-2 text-xl font-semibold text-stone-800">24</p>
             </div>
 
-            <div className="rounded-xl border-2 border-pink-100 bg-pink-500 p-4">
+            <div className="hover-card rounded-xl border-2 border-pink-100 bg-pink-500 p-4">
               <p className="text-xs font-bold text-white">Overdue</p>
               <p className="mt-2 text-xl font-semibold text-white">5</p>
             </div>
 
-            <div className="rounded-xl border border-pink-100 bg-pink-100 p-4">
+            <div className="hover-card rounded-xl border border-pink-100 bg-pink-100 p-4">
               <p className="text-xs font-bold text-stone-500">Healthy Accounts</p>
               <p className="mt-2 text-xl font-semibold text-stone-700">
                 79%
@@ -110,13 +110,13 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-4 rounded-xl border-2 border-pink-100 p-4">
+          <div className="hover-card mt-4 rounded-xl border-2 border-pink-100 p-4">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-medium text-stone-700">
                 Recent Customers
               </p>
 
-              <span className="text-xs text-stone-500">Risk</span>
+              <span className="text-sm text-stone-500 font-semibold">Risk</span>
             </div>
 
             <div className="space-y-4">
@@ -224,7 +224,7 @@ function CustomerRow({
       </div>
 
       <span
-        className={`rounded-md px-2.5 py-1 text-[10px] font-medium ${statusClass}`}
+        className={`rounded-md px-3 py-1.5 text-xs font-semibold font-medium ${statusClass}`}
       >
         {status}
       </span>
@@ -242,7 +242,7 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="rounded-xl border border-pink-100 p-6">
+    <div className="hover-card rounded-xl border border-pink-100 p-6">
       <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100 text-xs font-semibold text-pink-800">
         {icon}
       </div>

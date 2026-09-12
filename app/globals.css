@@ -145,7 +145,7 @@ select {
     @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full;
   }
   .status-badge {
-    @apply inline-flex whitespace-nowrap rounded-md px-2 py-1 text-[9px] font-medium;
+    @apply inline-flex whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-semibold;
   }
   .insight-stats {
     @apply my-5 space-y-4 text-[11px];
@@ -230,3 +230,30 @@ select {
   scrollbar-color: #f9a8d4 #fdf2f8;
   scrollbar-width: thin;
 }
+
+/* Shared hover feedback: rows highlight; cards gently grow over 0.2 seconds. */
+.card, .hover-card {
+  transition: transform 0.2s ease;
+}
+tbody tr, .list-row, .activity-item {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  /* Avoid scaling both a nested card and its parent at the same time. */
+  .card:hover:not(:has(.hover-card:hover, .card:hover)),
+  .hover-card:hover:not(:has(.hover-card:hover, .card:hover)) {
+    transform: scale(1.02);
+  }
+  tbody tr:hover, .list-row:hover, .activity-item:hover {
+    background-color: #fafaf9;
+    box-shadow: inset 0 1px 0 #e7e5e4, inset 0 -1px 0 #e7e5e4, 0 2px 4px #29252414;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:hover, .hover-card:hover { transform: none !important; }
+}
+
+/* Anchor chart growth at the baseline, matching the card hover timing. */
+.chart-bars { transform-box: fill-box; transform-origin: center bottom; transition: transform 0.2s ease; }
+.chart-month:hover .chart-bars, .chart-month:focus .chart-bars { transform: scale(1.02); }
+@media (prefers-reduced-motion: reduce) { .chart-bars { transform: none !important; } }
