@@ -17,9 +17,11 @@ import { Sidebar, MetricCard, type Section } from "./sidebar";
 import { Icon } from "./ui-icon";
 import { ReceivablesChart } from "./receivables-chart";
 import { ActivityFeed } from "./activity-feed";
-import { AIInsightCard, Assistant } from "./ai-insight-card";
+import { AIInsightCard } from "./ai-insight-card";
 import AddCustomerModal from "./add-customer-modal";
 import AddInvoiceModal from "./add-invoice-modal";
+import AIChat from "./ai-chat";
+import InvoiceScannerModal from "./invoice-scanner-modal";
 
 type DashboardProps = {
   customers: Customer[];
@@ -37,6 +39,7 @@ export default function Dashboard({
   const [active, setActive] = useState<Section>("Dashboard");
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
   const [addInvoiceOpen, setAddInvoiceOpen] = useState(false);
+  const [invoiceScannerOpen, setInvoiceScannerOpen] = useState(false);
   const [notifications, setNotifications] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [query, setQuery] = useState("");
@@ -402,15 +405,25 @@ export default function Dashboard({
                     </button>
                   )}
 
-                  {/* Add Invoice Button */}
+                  {/* Invoice Actions */}
                   {active === "Invoices" && (
-                    <button
-                      onClick={() => setAddInvoiceOpen(true)}
-                      className="primary-button"
-                    >
-                      <span className="text-base leading-none">+</span>
-                      Add Invoice
-                    </button>
+                    <>
+                      <button
+                        onClick={() => setInvoiceScannerOpen(true)}
+                        className="secondary-button"
+                      >
+                        <span className="text-base leading-none">📷</span>
+                        Scan Invoice
+                      </button>
+
+                      <button
+                        onClick={() => setAddInvoiceOpen(true)}
+                        className="primary-button"
+                      >
+                        <span className="text-base leading-none">+</span>
+                        Add Invoice
+                      </button>
+                    </>
                   )}
                 </div>
 
@@ -620,12 +633,9 @@ export default function Dashboard({
 
           {/* AI Assistant */}
           {active === "AI Assistant" && (
-            <Assistant
-              customers={customers}
-              invoices={invoices}
-              today={today}
-              unavailable={!!error}
-            />
+            <div className="mx-auto max-w-5xl">
+              <AIChat />
+            </div>
           )}
 
           {/* Documents */}
@@ -762,6 +772,13 @@ export default function Dashboard({
         open={addInvoiceOpen}
         onClose={() => setAddInvoiceOpen(false)}
         customers={customers}
+      />
+
+      {/* Invoice Scanner Modal */}
+      <InvoiceScannerModal
+        open={invoiceScannerOpen}
+        onClose={() => setInvoiceScannerOpen(false)}
+        onSaved={() => router.refresh()}
       />
     </div>
   );
