@@ -656,7 +656,7 @@ export default function Dashboard({
 
           {/* Settings */}
           {active === "Settings" && (
-            <section className="card max-w-2xl p-6">
+            <section className="card max-w-2xl p-6 ticket-card">
               <h2 className="section-title">
                 Workspace settings
               </h2>
