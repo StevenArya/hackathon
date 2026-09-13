@@ -284,3 +284,29 @@ tbody tr, .list-row, .activity-item {
   }
   .notification-panel button { min-height: 44px; min-width: 44px; }
 }
+
+/* A pink glow separates the sticky dashboard header from the page. */
+.topbar {
+  box-shadow: 0 10px 24px -8px rgb(249 168 212 / 55%);
+}
+
+/* Repeating transparent notches on both edges give summary cards a ticket silhouette. */
+.ticket-card {
+  border-radius: 16px;
+  border: 1px solid #f9a8d4;
+  /* Pink rings follow the masked cutouts, completing the ticket outline. */
+  background-image:
+    radial-gradient(circle at left center, transparent 7px, #f9a8d4 7px, #f9a8d4 8.5px, transparent 9px),
+    radial-gradient(circle at right center, transparent 7px, #f9a8d4 7px, #f9a8d4 8.5px, transparent 9px);
+  background-size: 100% 38px;
+  background-repeat: repeat-y;
+  background-origin: border-box;
+  -webkit-mask-image: radial-gradient(circle at left center, transparent 7px, black 7.5px), radial-gradient(circle at right center, transparent 7px, black 7.5px);
+  mask-image: radial-gradient(circle at left center, transparent 7px, black 7.5px), radial-gradient(circle at right center, transparent 7px, black 7.5px);
+  -webkit-mask-size: 100% 38px;
+  mask-size: 100% 38px;
+  -webkit-mask-repeat: repeat-y;
+  mask-repeat: repeat-y;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}

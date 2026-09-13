@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "./components/ui-icon";
 
 export default function LandingPage() {
   return (
@@ -180,23 +181,37 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-pink-50">
-        <div className="mx-auto max-w-7xl px-6 py-20 text-center">
-          <h2 className="text-3xl font-semibold text-stone-800">
-            Take control of your receivables.
+      {/* Getting started: stacked icon-led steps remain easy to follow on mobile. */}
+      <section aria-labelledby="getting-started-title" className="border-t border-pink-100 bg-yellow-50">
+        <div className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-24">
+          <p className=" font-semibold text-pink-500">Join us</p>
+          <h2 id="getting-started-title" className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-stone-800 sm:text-5xl">
+            How to get started<br />with InVora
           </h2>
-
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-stone-500">
-            Create your account and start managing customers, invoices, and
-            credit risk in one place.
+          <p className="mx-auto mt-5 max-w-md text-base leading-7 text-stone-600 sm:text-lg">
+            A clearer view of your payments starts with a few simple steps.
           </p>
 
-          <Link
-            href="/signup"
-            className="mt-8 inline-block rounded-lg bg-pink-200 px-6 py-3 text-sm font-medium text-stone-800 transition hover:bg-pink-300"
-          >
-            Create Account
+          <ol className="mx-auto my-10 grid max-w-lg grid-cols-1 gap-8 text-left md:my-12 md:max-w-none md:grid-cols-3 md:gap-10 md:text-center">
+            {[
+              { icon: "users" as const, title: "Create your account", description: "Enter your name, email, and a password." },
+              { icon: "check" as const, title: "Confirm your email", description: "Confirm all your personal data." },
+              { icon: "grid" as const, title: "Explore your dashboard", description: "View your invoices, payment dates, and account status once your customer profile is linked." },
+            ].map((step, index) => (
+              <li key={step.title} className="flex items-start gap-5 md:flex-col md:items-center">
+                <div aria-hidden="true" className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${index === 1 ? "bg-yellow-100 text-yellow-800" : "bg-pink-50 text-pink-500"}`}>
+                  <Icon name={step.icon} className="!h-8 !w-8" />
+                </div>
+                <div className="py-1">
+                  <h3 className="text-lg font-semibold text-stone-800">{step.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-stone-500">{step.description}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <Link href="/signup" className="inline-flex min-h-14 w-full max-w-xs items-center justify-center rounded-full bg-pink-200 px-8 py-4 text-lg font-semibold text-pink-800 transition hover:bg-pink-300">
+            Get started
           </Link>
         </div>
       </section>

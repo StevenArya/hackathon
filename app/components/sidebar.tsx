@@ -50,6 +50,6 @@ export function Sidebar({ active, onNavigate, connected }: { active: Section; on
   </>;
 }
 export function MetricCard({ title, value, detail, icon, tone = "blue", unavailable }: { title: string; value: string; detail: string; icon: IconName; tone?: string; unavailable?: boolean }) {
-  return <article className="card min-w-0 p-5"><div className="flex items-center justify-between gap-2"><h2 className="text-xs font-medium text-stone-600">{title}</h2><span className={`metric-icon tone-${tone}`}><Icon name={icon} className="!h-4 !w-4" /></span></div><p className="mt-3 text-[clamp(19px,1.65vw,28px)] font-semibold tracking-tight tabular-nums">{unavailable ? "—" : value}</p><p className="mt-3 text-[11px] text-stone-500">{unavailable ? "Data unavailable" : detail}</p></article>;
+  return <article className="card ticket-card min-w-0 px-6 py-5"><div className="flex items-center justify-between gap-2"><h2 className="text-xs font-medium text-stone-600">{title}</h2><span className={`metric-icon tone-${tone}`}><Icon name={icon} className="!h-4 !w-4" /></span></div><p className="mt-3 text-[clamp(19px,28px)] font-semibold tracking-tight tabular-nums">{unavailable ? "—" : value}</p><p className="mt-4 border-t border-dashed border-pink-200 pt-3 text-[11px] text-stone-500">{unavailable ? "Data unavailable" : detail}</p></article>;
 }
 
