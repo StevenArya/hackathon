@@ -755,7 +755,7 @@ export default function Dashboard({
       <InvoiceScannerModal
         open={invoiceScannerOpen}
         onClose={() => setInvoiceScannerOpen(false)}
-        onSaved={() => router.refresh()}
+        onConfirmed={() => router.refresh()}
       />
     </div>
   );

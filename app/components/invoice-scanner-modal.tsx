@@ -64,6 +64,7 @@ async function pdfToImages(file: File): Promise<File[]> {
     canvas.height = viewport.height;
 
     await page.render({
+      canvas,
       canvasContext: context,
       viewport,
     }).promise;
