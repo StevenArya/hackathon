@@ -29,9 +29,9 @@ type Invoice = {
 };
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
+  return new Intl.NumberFormat("en-AU", {
     style: "currency",
-    currency: "IDR",
+    currency: "AUD",
     maximumFractionDigits: 0,
   }).format(amount);
 }

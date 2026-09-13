@@ -271,7 +271,7 @@ export default function Dashboard({
                       timeZone: "UTC",
                     }
                   )}{" "}
-                  · IDR
+                  · AUD
                 </span>
               </div>
 
@@ -679,7 +679,7 @@ export default function Dashboard({
                 <div>
                   <dt>Currency</dt>
                   <dd>
-                    Indonesian rupiah (IDR)
+                    Australian dollar (AUD)
                   </dd>
                 </div>
 

@@ -2,247 +2,575 @@ import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 import { createSessionClient } from "@/src/lib/supabase/server";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
-type Analysis = {
-  classification: "paid" | "credit" | "loan" | "unknown";
-  confidence: number;
-  matchedSignals: string[];
-  reasoning: string;
+type AnalysisResult = {
   invoiceNumber: string | null;
-  customerCode: string | null;
-  bankReference: string | null;
   customerName: string | null;
+  customerCode: string | null;
+  bankRefNumber: string | null;
   amount: number | null;
   issueDate: string | null;
   dueDate: string | null;
-  title: string | null;
+  paymentType: "cash" | "credit" | "loan" | null;
+  confidence: number;
+  reasoning: string;
 };
 
-function normalize(value: string | null | undefined) {
-  return value?.trim().toLowerCase() ?? "";
-}
-
 function parseAmount(value: unknown) {
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
 
-  if (typeof value !== "string") return null;
+  if (typeof value !== "string") {
+    return null;
+  }
 
-  const cleaned = value.replace(/[^\d.,-]/g, "").replace(/\./g, "").replace(",", ".");
+  let cleaned = value.replace(/[^\d.,-]/g, "");
+
+  if (cleaned.includes(".") && cleaned.includes(",")) {
+    if (cleaned.lastIndexOf(",") > cleaned.lastIndexOf(".")) {
+      cleaned = cleaned.replace(/\./g, "").replace(",", ".");
+    } else {
+      cleaned = cleaned.replace(/,/g, "");
+    }
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(cleaned)) {
+    cleaned = cleaned.replace(/\./g, "");
+  } else if (/^\d{1,3}(,\d{3})+$/.test(cleaned)) {
+    cleaned = cleaned.replace(/,/g, "");
+  } else {
+    cleaned = cleaned.replace(",", ".");
+  }
+
   const parsed = Number(cleaned);
 
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function normalizePaymentType(
+  value: unknown
+): "cash" | "credit" | "loan" | null {
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (normalized === "cash") {
+    return "cash";
+  }
+
+  if (normalized === "credit") {
+    return "credit";
+  }
+
+  if (normalized === "loan") {
+    return "loan";
+  }
+
+  return null;
+}
+
+function extractJson(text: string) {
+  const cleaned = text
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+
+  if (start === -1 || end === -1 || end <= start) {
+    console.error("AI response without JSON:", text);
+
+    throw new Error(
+      "Invora AI did not return readable invoice data."
+    );
+  }
+
+  const jsonText = cleaned.slice(start, end + 1);
+
+  try {
+    return JSON.parse(jsonText);
+  } catch (error) {
+    console.error("Invalid AI JSON:", jsonText);
+    console.error("JSON parse error:", error);
+
+    throw new Error(
+      "Invora AI returned invalid invoice data."
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
+    const groqApiKey = process.env.GROQ_API_KEY;
+
+    if (!groqApiKey) {
+      return NextResponse.json(
+        {
+          error: "GROQ_API_KEY is not configured.",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+
     const supabase = await createSessionClient();
 
-    const { data: claimsData, error: authError } =
-      await supabase.auth.getClaims();
+    const {
+      data: claimsData,
+      error: authError,
+    } = await supabase.auth.getClaims();
 
     const userId = claimsData?.claims?.sub;
 
     if (authError || !userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: "Unauthorized.",
+        },
+        {
+          status: 401,
+        }
+      );
     }
 
-    const { data: profile, error: profileError } = await supabase
+    const {
+      data: profile,
+      error: profileError,
+    } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", userId)
       .single();
 
-    if (profileError || profile?.role !== "admin") {
+    if (
+      profileError ||
+      !profile ||
+      profile.role !== "admin"
+    ) {
       return NextResponse.json(
-        { error: "Admin access required" },
-        { status: 403 }
+        {
+          error: "Admin access required.",
+        },
+        {
+          status: 403,
+        }
       );
     }
 
-    const body = await request.json();
-    const imageDataUrl = body.imageDataUrl as string | undefined;
+    const formData = await request.formData();
 
-    if (!imageDataUrl?.startsWith("data:image/")) {
+    const imageEntries = formData.getAll("images");
+
+    if (imageEntries.length === 0) {
       return NextResponse.json(
-        { error: "A valid invoice image is required." },
-        { status: 400 }
+        {
+          error: "At least one invoice image is required.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    if (imageDataUrl.length > 16_000_000) {
+    if (imageEntries.length > 5) {
       return NextResponse.json(
-        { error: "Image is too large. Please use a smaller image." },
-        { status: 413 }
+        {
+          error:
+            "A maximum of 5 invoice pages can be scanned at once.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    const [{ data: rules, error: rulesError }, { data: customers, error: customersError }] =
-      await Promise.all([
-        supabase
-          .from("invoice_classification_rules")
-          .select(
-            "category, label, keywords, title_patterns, color_hint, notes"
-          )
-          .order("category"),
-        supabase
-          .from("customers")
-          .select("id, name, customer_code, bank_ref_number"),
-      ]);
+    const files = imageEntries.filter(
+      (item): item is File => item instanceof File
+    );
 
-    if (rulesError) throw rulesError;
-    if (customersError) throw customersError;
+    if (files.length !== imageEntries.length) {
+      return NextResponse.json(
+        {
+          error: "Invalid invoice file.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+    for (const file of files) {
+      if (!allowedMimeTypes.includes(file.type)) {
+        return NextResponse.json(
+          {
+            error:
+              "Only JPG, PNG, and WebP images can be analysed.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      if (file.size > 20 * 1024 * 1024) {
+        return NextResponse.json(
+          {
+            error:
+              "Each invoice image must be smaller than 20 MB.",
+          },
+          {
+            status: 413,
+          }
+        );
+      }
+    }
+
+    const imageContents: Array<{
+      type: "image_url";
+      image_url: {
+        url: string;
+      };
+    }> = [];
+
+    for (const file of files) {
+      const buffer = Buffer.from(
+        await file.arrayBuffer()
+      );
+
+      const dataUrl =
+        `data:${file.type};base64,` +
+        buffer.toString("base64");
+
+      imageContents.push({
+        type: "image_url",
+        image_url: {
+          url: dataUrl,
+        },
+      });
+    }
+
+    const {
+      data: customers,
+      error: customersError,
+    } = await supabase
+      .from("customers")
+      .select(
+        "id, customer_code, name, bank_ref_number"
+      )
+      .order("name");
+
+    if (customersError) {
+      throw customersError;
+    }
+
+    const customerReference = (customers ?? []).map(
+      (customer) => ({
+        customerCode: customer.customer_code,
+        name: customer.name,
+        bankRefNumber: customer.bank_ref_number,
+      })
+    );
 
     const prompt = `
-You are Invora's invoice/faktur document classifier.
+You are Invora AI.
 
-Analyse the supplied invoice image and return ONLY JSON.
+Read the supplied invoice document.
 
-The business has supplied these classification identifiers:
-${JSON.stringify(rules ?? [], null, 2)}
+There may be multiple images because a PDF has been converted into individual pages.
 
-Classification meanings:
-- paid: clear evidence that the invoice/faktur is fully paid or settled.
-- credit: a normal trade-credit invoice payable later.
-- loan: a loan, financing, instalment, or borrowing document.
-- unknown: evidence is too weak or conflicting.
+All supplied pages belong to the same invoice.
 
-Important:
-- Do NOT classify by colour alone.
-- Use document title, visible words, stamps, due/payment wording, layout and colour together.
-- Business-supplied identifiers are evidence, not absolute truth.
-- Do not invent text that is not visible.
-- Extract identifiers exactly when possible.
-- Amount must be a plain number without currency symbols or separators.
-- Dates must be YYYY-MM-DD when confidently readable; otherwise null.
-- Confidence must be between 0 and 1.
+Extract ONLY information that is visibly present in the document.
 
-Return this JSON shape:
+Do not guess.
+Do not invent values.
+Do not invent customers.
+Do not invent invoice numbers.
+Do not invent amounts.
+
+REGISTERED CUSTOMERS:
+
+${JSON.stringify(customerReference)}
+
+Use visible information to identify the customer, including:
+
+- customer name
+- customer code
+- customer ID
+- bank reference number
+- invoice recipient details
+
+If the visible invoice clearly matches a registered customer, return that customer's exact registered:
+- name
+- customerCode
+- bankRefNumber
+
+Extract the following:
+
+1. invoiceNumber
+2. customerName
+3. customerCode
+4. bankRefNumber
+5. amount
+6. issueDate
+7. dueDate
+8. paymentType
+9. confidence
+10. reasoning
+
+PAYMENT TYPE
+
+Valid values:
+
+cash
+credit
+loan
+
+Use visible information such as:
+- invoice title
+- payment method
+- payment terms
+- credit wording
+- financing wording
+- loan wording
+- invoice labels
+- visual identifiers
+
+Do not classify only from colour if visible text contradicts it.
+
+Use "cash" if it clearly represents a direct or cash payment.
+
+Use "credit" if it clearly represents customer credit or accounts receivable.
+
+Use "loan" if it clearly represents financing or lending.
+
+If payment type cannot be reliably identified, return null.
+
+AMOUNT
+
+Return the total invoice amount as a plain number.
+
+Example:
+
+Rp 3.250.000
+
+must become:
+
+3250000
+
+DATES
+
+Return dates as:
+
+YYYY-MM-DD
+
+Example:
+
+12 September 2026
+
+must become:
+
+2026-09-12
+
+RETURN FORMAT
+
+Return ONLY one JSON object.
+
+Do not use markdown.
+Do not use code fences.
+Do not write anything before the JSON.
+Do not write anything after the JSON.
+
+Use exactly these keys:
+
 {
-  "classification": "paid" | "credit" | "loan" | "unknown",
-  "confidence": 0.0,
-  "matchedSignals": ["signal 1", "signal 2"],
-  "reasoning": "short explanation",
-  "invoiceNumber": "string or null",
-  "customerCode": "string or null",
-  "bankReference": "string or null",
-  "customerName": "string or null",
-  "amount": 0,
-  "issueDate": "YYYY-MM-DD or null",
-  "dueDate": "YYYY-MM-DD or null",
-  "title": "visible document title or null"
+  "invoiceNumber": null,
+  "customerName": null,
+  "customerCode": null,
+  "bankRefNumber": null,
+  "amount": null,
+  "issueDate": null,
+  "dueDate": null,
+  "paymentType": null,
+  "confidence": 0,
+  "reasoning": ""
 }
+
+Rules:
+
+- Use null if information is not visible.
+- amount must be a number.
+- confidence must be a number between 0 and 1.
+- reasoning must be one short sentence.
 `;
 
-    const completion = await groq.chat.completions.create({
-      model: "qwen/qwen3.6-27b",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: prompt,
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: imageDataUrl,
-              },
-            },
-          ],
-        },
-      ],
-      temperature: 0.1,
-      max_completion_tokens: 1200,
-      response_format: {
-        type: "json_object",
-      },
+    const groq = new Groq({
+      apiKey: groqApiKey,
     });
 
-    const raw = completion.choices[0]?.message?.content;
+    const completion =
+      await groq.chat.completions.create({
+        model: "qwen/qwen3.6-27b",
+
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: prompt,
+              },
+              ...imageContents,
+            ],
+          },
+        ],
+
+        temperature: 0.7,
+        top_p: 0.8,
+
+        max_completion_tokens: 700,
+
+        reasoning_effort: "none",
+
+        stream: false,
+      });
+
+    const message =
+      completion.choices[0]?.message;
+
+    console.log(
+      "===== INVORA GROQ FULL MESSAGE ====="
+    );
+
+    console.dir(message, {
+      depth: null,
+    });
+
+    console.log(
+      "===================================="
+    );
+
+    const raw =
+      message?.content?.trim();
 
     if (!raw) {
+      console.error(
+        "Groq returned empty content."
+      );
+
+      console.error(
+        "Full choice:",
+        completion.choices[0]
+      );
+
       return NextResponse.json(
-        { error: "The AI did not return an analysis." },
-        { status: 502 }
+        {
+          error:
+            "Invora AI could not extract invoice data from this document. Please try a clearer image or PDF.",
+        },
+        {
+          status: 502,
+        }
       );
     }
 
-    const parsed = JSON.parse(raw) as Partial<Analysis>;
+    const parsed =
+      extractJson(raw) as Partial<AnalysisResult>;
 
-    const allowed = new Set(["paid", "credit", "loan", "unknown"]);
+    const analysis: AnalysisResult = {
+      invoiceNumber:
+        parsed.invoiceNumber !== null &&
+        parsed.invoiceNumber !== undefined
+          ? String(parsed.invoiceNumber).trim()
+          : null,
 
-    const analysis: Analysis = {
-      classification: allowed.has(parsed.classification ?? "")
-        ? (parsed.classification as Analysis["classification"])
-        : "unknown",
-      confidence: Math.max(0, Math.min(1, Number(parsed.confidence ?? 0))),
-      matchedSignals: Array.isArray(parsed.matchedSignals)
-        ? parsed.matchedSignals.map(String).slice(0, 10)
-        : [],
-      reasoning: String(parsed.reasoning ?? ""),
-      invoiceNumber: parsed.invoiceNumber
-        ? String(parsed.invoiceNumber).trim()
-        : null,
-      customerCode: parsed.customerCode
-        ? String(parsed.customerCode).trim()
-        : null,
-      bankReference: parsed.bankReference
-        ? String(parsed.bankReference).trim()
-        : null,
-      customerName: parsed.customerName
-        ? String(parsed.customerName).trim()
-        : null,
+      customerName:
+        parsed.customerName !== null &&
+        parsed.customerName !== undefined
+          ? String(parsed.customerName).trim()
+          : null,
+
+      customerCode:
+        parsed.customerCode !== null &&
+        parsed.customerCode !== undefined
+          ? String(parsed.customerCode).trim()
+          : null,
+
+      bankRefNumber:
+        parsed.bankRefNumber !== null &&
+        parsed.bankRefNumber !== undefined
+          ? String(parsed.bankRefNumber).trim()
+          : null,
+
       amount: parseAmount(parsed.amount),
-      issueDate: parsed.issueDate ? String(parsed.issueDate) : null,
-      dueDate: parsed.dueDate ? String(parsed.dueDate) : null,
-      title: parsed.title ? String(parsed.title).trim() : null,
+
+      issueDate:
+        parsed.issueDate !== null &&
+        parsed.issueDate !== undefined
+          ? String(parsed.issueDate).trim()
+          : null,
+
+      dueDate:
+        parsed.dueDate !== null &&
+        parsed.dueDate !== undefined
+          ? String(parsed.dueDate).trim()
+          : null,
+
+      paymentType: normalizePaymentType(
+        parsed.paymentType
+      ),
+
+      confidence: Math.max(
+        0,
+        Math.min(
+          1,
+          Number(parsed.confidence ?? 0)
+        )
+      ),
+
+      reasoning: String(
+        parsed.reasoning ?? ""
+      ).trim(),
     };
 
-    const customerList = customers ?? [];
+    console.log(
+      "===== INVORA INVOICE ANALYSIS ====="
+    );
 
-    let matchedCustomer =
-      customerList.find(
-        (customer) =>
-          analysis.customerCode &&
-          normalize(customer.customer_code) === normalize(analysis.customerCode)
-      ) ?? null;
+    console.dir(analysis, {
+      depth: null,
+    });
 
-    if (!matchedCustomer) {
-      matchedCustomer =
-        customerList.find(
-          (customer) =>
-            analysis.bankReference &&
-            customer.bank_ref_number &&
-            normalize(customer.bank_ref_number) ===
-              normalize(analysis.bankReference)
-        ) ?? null;
-    }
-
-    if (!matchedCustomer) {
-      matchedCustomer =
-        customerList.find(
-          (customer) =>
-            analysis.customerName &&
-            normalize(customer.name) === normalize(analysis.customerName)
-        ) ?? null;
-    }
+    console.log(
+      "===================================="
+    );
 
     return NextResponse.json({
-      analysis: {
-        ...analysis,
-        matchedCustomer,
-      },
+      analysis,
     });
   } catch (error) {
-    console.error("Invoice analysis error:", error);
+    console.error(
+      "Invoice analysis error:",
+      error
+    );
 
     return NextResponse.json(
-      { error: "Invora could not analyse this invoice." },
-      { status: 500 }
+      {
+        error:
+          process.env.NODE_ENV === "development" &&
+          error instanceof Error
+            ? error.message
+            : "Invora could not analyse this invoice.",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

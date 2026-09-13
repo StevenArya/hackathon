@@ -89,7 +89,7 @@ export default function LandingPage() {
             <div className="hover-card rounded-xl border border-pink-100 bg-pink-100 p-4">
               <p className="text-xs font-bold text-stone-500">Outstanding</p>
               <p className="mt-2 text-xl font-semibold text-stone-800">
-                Rp 25.5M
+                $ 25.5M
               </p>
             </div>
 

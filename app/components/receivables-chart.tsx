@@ -106,7 +106,7 @@ export function ReceivablesChart({
               aria-label="Current outstanding and overdue invoice balances by due month"
               className="min-w-[600px] w-full"
             >
-              <title>Receivables by due month, in Indonesian rupiah</title>
+              <title>Receivables by due month, in Australian Dollar</title>
               {[0, 1, 2, 3, 4].map((tick) => (
                 <g key={tick}>
                   <line

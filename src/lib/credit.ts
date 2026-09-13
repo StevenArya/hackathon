@@ -1,6 +1,6 @@
 export type Customer = { id: string; customer_code: string; name: string; bank_ref_number: string | null; status: "good" | "level_1" | "level_2" | "danger" };
 export type Invoice = { id: string; customer_id: string; invoice_number: string; amount: number; issue_date: string | null; due_date: string | null; status: "unpaid" | "paid" | "overdue" };
-export const currency = (value: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
+export const currency = (value: number) => new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(value);
 export const compact = (value: number) => new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 export const statusLabel = { good: "Good", level_1: "Level 1", level_2: "Level 2", danger: "Danger" };
 export function daysUntil(date: string | null, today: string) {
