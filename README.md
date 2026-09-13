@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## About the Project
+
+InVora is a FORWARD: AI in Business 2026 Hackathon submission that turns manual, paper-based invoice management into an AI-assisted workflow. Many trade and wholesale businesses still track credit using colour-coded invoice paper and a mental checklist of who has paid, who is overdue, and who still qualifies for credit. InVora scans an invoice, classifies it using the business's own rules, keeps every invoice tied to a customer's record over time, and puts an AI assistant on top that can answer questions like "who has the highest credit risk?" directly from live data, citing the specific invoices behind every answer.
+
+## Live demo: 
+[hackathon-silk-zeta.vercel.app](https://hackathon-silk-zeta.vercel.app/)
+
+## Tech Stack
+Frontend: Next.js, React, TypeScript, Tailwind CSS
+Auth & Database: Supabase (with Row Level Security)
+AI agent: Groq
+PDF parsing: pdfjs-dist
+Deployment: Vercel
 
 ## Getting Started
+1. Prerequisites:
+- Node.js
+- A Supabase project
+- A Groq API key
 
-First, run the development server:
+2. Clone the repo
+   ```bash
+   git clone https://github.com/StevenArya/hackathon.git
+   cd hackathon
+   ```
+3. Configure environment variables
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    Create a .env.local file in the project root:
+    ```bash
+    NEXT_PUBLIC_SUPABASE_URL=
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+    GROQ_API_KEY=
+    ```
+    The first two come from your Supabase project's API settings. GROQ_API_KEY comes from your Groq account and is required for the AI credit assistant to work.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Install and run
+    ```bash
+      npm i
+      npm run dev
+    ```
+    The app will be available at http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+You can try InVora right now on the live deployment without setting anything up locally
+using: [hackathon-silk-zeta.vercel.app](https://hackathon-silk-zeta.vercel.app/)
 
-To learn more about Next.js, take a look at the following resources:
+Two guest accounts are seeded with sample data so you can see both sides of the product. These are demo accounts only, seeded with sample invoices and customers, not real business or customer data.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Business / admin side Log in with:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Email: admin01@gmail.com
+Password: admin1
 
-## Deploy on Vercel
+This account lands on the admin dashboard, where you can view the receivables overview, add and manage customers and invoices, scan a new invoice, verify a customer's payment proof, and chat with the AI credit assistant.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Client side Log in with:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Email: antonius@gmail.com
+Password: antonius1
+
+This account shows the product from a customer's point of view, including their own invoices and credit status and the ability to submit proof of payment.
+
