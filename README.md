@@ -7,11 +7,12 @@ InVora is a FORWARD: AI in Business 2026 Hackathon submission that turns manual,
 [hackathon-silk-zeta.vercel.app](https://hackathon-silk-zeta.vercel.app/)
 
 ## Tech Stack
-Frontend: Next.js, React, TypeScript, Tailwind CSS
-Auth & Database: Supabase (with Row Level Security)
-AI agent: Groq
-PDF parsing: pdfjs-dist
-Deployment: Vercel
+* Frontend:
+  Next.js, React, TypeScript, Tailwind CSS
+* Auth & Database: Supabase (with Row Level Security)
+* AI agent: Groq
+* PDF parsing: pdfjs-dist
+* Deployment: Vercel
 
 ## Getting Started
 1. Prerequisites:
@@ -62,4 +63,3 @@ Email: antonius@gmail.com
 Password: antonius1
 
 This account shows the product from a customer's point of view, including their own invoices and credit status and the ability to submit proof of payment.
-
