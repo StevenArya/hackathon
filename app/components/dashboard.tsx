@@ -143,7 +143,7 @@ export default function Dashboard({
                 WELCOME TO InVora.
               </div>
 
-              <h1 className="text-[27px] font-semibold tracking-tight sm:text-[30px]">
+              <h1 className=" text-[27px] sm:text-[30px]" style={{fontFamily:"fantasy"}}>
                 {titles[active]}
               </h1>
 

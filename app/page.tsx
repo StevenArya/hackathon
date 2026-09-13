@@ -45,12 +45,12 @@ export default function LandingPage() {
             Smarter credit management
           </div>
 
-          <h1 className="max-w-2xl text-5xl font-semibold leading-tight tracking-tight text-stone-800 md:text-6xl">
+          <h1 className="max-w-2xl text-5xl font-semibold leading-tight tracking text-stone-800 md:text-6xl " style={{ fontFamily: "fongsong" }}>
             Manage receivables.
-            <span className="block text-pink-300 text-[1.05em] font-semibold">
-              Reduce payment risk.
-            </span>
           </h1>
+          <h1 className="max-w-2xl text-5xl block text-pink-300 tracking-wide md:text-6xl" style={{ fontFamily: "fantasy" }}>
+              Reduce payment risk.
+            </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-8 text-stone-600">
             Monitor customers, invoices, outstanding payments, and credit risk
@@ -79,7 +79,7 @@ export default function LandingPage() {
           <div className="mb-5 flex items-center justify-between">
             <div>
               <p className="text-xs text-stone-500">Credit Overview</p>
-              <h2 className="mt-1 text-lg font-semibold text-stone-800">
+              <h2 className="max-w-2xl text-lg font-semibold text-stone-800" style={{ fontFamily: "fongsong" }}>
                 Business Dashboard
               </h2>
             </div>
@@ -154,7 +154,7 @@ export default function LandingPage() {
               Everything in one place
             </p>
 
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-stone-800">
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-stone-800"  style={{ fontFamily: "fongsong" }}>
               Understand your receivables at a glance
             </h2>
           </div>
@@ -185,7 +185,7 @@ export default function LandingPage() {
       <section aria-labelledby="getting-started-title" className="border-t border-pink-100 bg-yellow-50">
         <div className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-24">
           <p className=" font-semibold text-pink-500">Join us</p>
-          <h2 id="getting-started-title" className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-stone-800 sm:text-5xl">
+          <h2 id="getting-started-title" className="mt-4 text-3xl text-stone-800 sm:text-5xl" style={{ fontFamily: "fantasy"}}>
             How to get started<br />with InVora
           </h2>
           <p className="mx-auto mt-5 max-w-md text-base leading-7 text-stone-600 sm:text-lg">

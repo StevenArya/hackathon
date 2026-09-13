@@ -202,7 +202,7 @@ export default function CustomerDashboard() {
               Customer Portal
             </p>
 
-            <h1 className="text-xl font-bold text-stone-800">
+            <h1 className=" text-xl text-stone-800" style={{fontFamily:"fantasy"}}>
               {customer.name}
             </h1>
           </div>
@@ -220,7 +220,7 @@ export default function CustomerDashboard() {
         <div className="mb-8">
           <p className="text-sm text-stone-600">Welcome back</p>
 
-          <h2 className="text-3xl font-bold text-stone-800">
+          <h2 className=" text-3xl font-bold text-stone-800" style={{fontFamily:"fantasy"}}>
             {profile?.full_name || customer.name}
           </h2>
         </div>
