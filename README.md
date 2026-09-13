@@ -61,5 +61,5 @@ This account lands on the admin dashboard, where you can view the receivables ov
 
 * Email: antonius@gmail.com
 * Password: antonius1
-* 
+
 This account shows the product from a customer's point of view, including their own invoices and credit status and the ability to submit proof of payment.
