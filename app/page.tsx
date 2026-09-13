@@ -45,10 +45,10 @@ export default function LandingPage() {
             Smarter credit management
           </div>
 
-          <h1 className="max-w-2xl text-5xl font-semibold leading-tight tracking text-stone-800 md:text-6xl " style={{ fontFamily: "fongsong" }}>
+          <h1 className="max-w-2xl text-5xl font-semibold leading-tight tracking text-stone-800 md:text-6xl " style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
             Manage receivables.
           </h1>
-          <h1 className="max-w-2xl text-5xl block text-pink-300 font-bold tracking-wide md:text-6xl" style={{ fontFamily: "var(--font-heading), sans-serif", lineHeight: 1.2 }}>
+          <h1 className="max-w-2xl text-5xl block text-pink-300 font-bold tracking-wide md:text-6xl" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
               Reduce payment risk.
             </h1>
 
@@ -79,7 +79,7 @@ export default function LandingPage() {
           <div className="mb-5 flex items-center justify-between">
             <div>
               <p className="text-xs text-stone-500">Credit Overview</p>
-              <h2 className="max-w-2xl text-lg font-semibold text-stone-800" style={{ fontFamily: "fongsong" }}>
+              <h2 className="max-w-2xl text-lg font-semibold text-stone-800" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
                 Business Dashboard
               </h2>
             </div>
@@ -154,7 +154,7 @@ export default function LandingPage() {
               Everything in one place
             </p>
 
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-stone-800" style={{ fontFamily: "fongsong" }}>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-stone-800" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
               Understand your receivables at a glance
             </h2>
           </div>
@@ -185,7 +185,7 @@ export default function LandingPage() {
       <section aria-labelledby="getting-started-title" className="border-t border-pink-100 bg-yellow-50">
         <div className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-24">
           <p className=" font-semibold text-pink-500">Join us</p>
-          <h2 id="getting-started-title" className="mt-4 text-3xl font-bold text-stone-800 sm:text-5xl" style={{ fontFamily: "var(--font-heading), sans-serif", lineHeight: 1.2 }}>
+          <h2 id="getting-started-title" className="mt-4 text-3xl font-bold text-stone-800 sm:text-5xl" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
             How to get started<br />with InVora
           </h2>
           <p className="mx-auto mt-5 max-w-md text-base leading-7 text-stone-600 sm:text-lg">

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Manrope, Oswald } from "next/font/google";
+import { Manrope, Anton } from "next/font/google";
 import "./globals.css";
 
 // Variable sans-serif with a rounded, geometric feel across all pages.
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-invora", display: "swap" });
-const headingFont = Oswald({ subsets: ["latin"], variable: "--font-heading", display: "swap" });
+const headingFont = Anton({ weight: "400", subsets: ["latin"], variable: "--font-heading", display: "swap" });
 export const metadata: Metadata = {
   title: "InVora | Credit Overview",
   description: "Monitor receivables, customer risk, and upcoming payments in your credit management workspace.",

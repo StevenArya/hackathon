@@ -143,7 +143,7 @@ export default function Dashboard({
                 WELCOME TO InVora.
               </div>
 
-              <h1 className=" text-[27px] sm:text-[30px]" style={{ fontFamily: "var(--font-heading), sans-serif", lineHeight: 1.2 }}>
+              <h1 className=" text-[27px] sm:text-[30px]" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
                 {titles[active]}
               </h1>
 
