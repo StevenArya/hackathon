@@ -29,9 +29,9 @@ type Invoice = {
 };
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
+  return new Intl.NumberFormat("en-AU", {
     style: "currency",
-    currency: "IDR",
+    currency: "AUD",
     maximumFractionDigits: 0,
   }).format(amount);
 }
@@ -198,11 +198,11 @@ export default function CustomerDashboard() {
       <header className="sticky top-0 z-20 border-b border-pink-100 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <div>
-            <p className="text-sm font-semibold text-pink-700">
+            <p className="text-sm font-bold text-pink-400">
               Customer Portal
             </p>
 
-            <h1 className=" text-xl text-stone-800" style={{fontFamily:"fantasy"}}>
+            <h1 className=" text-xl text-stone-800" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
               {customer.name}
             </h1>
           </div>
@@ -217,10 +217,10 @@ export default function CustomerDashboard() {
       </header>
 
       <div className="mx-auto max-w-6xl px-6 py-8">
-        <div className="mb-8">
-          <p className="text-sm text-stone-600">Welcome back</p>
+        <div className="mb-8 hover-card card p-6 shadow-sm ">
+          <p className="text-sm ms-2 mt-5  text-stone-600">Welcome back</p>
 
-          <h2 className=" text-3xl font-bold text-stone-800" style={{fontFamily:"fantasy"}}>
+          <h2 className=" text-3xl ms-2 mb-2  font-bold text-pink-300 uppercase" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
             {profile?.full_name || customer.name}
           </h2>
         </div>
@@ -264,7 +264,7 @@ export default function CustomerDashboard() {
         </section>
 
         <section className="hover-card mt-4 rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
-          <p className="text-sm text-stone-600">
+          <p className="text-sm font-bold text-pink-600">
             Unpaid invoices
           </p>
 

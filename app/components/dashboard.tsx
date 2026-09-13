@@ -143,7 +143,7 @@ export default function Dashboard({
                 WELCOME TO InVora.
               </div>
 
-              <h1 className=" text-[27px] sm:text-[30px]" style={{fontFamily:"fantasy"}}>
+              <h1 className=" text-[27px] sm:text-[30px]" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 400, lineHeight: 1.2 }}>
                 {titles[active]}
               </h1>
 
@@ -271,7 +271,7 @@ export default function Dashboard({
                       timeZone: "UTC",
                     }
                   )}{" "}
-                  · IDR
+                  · AUD
                 </span>
               </div>
 
@@ -679,7 +679,7 @@ export default function Dashboard({
                 <div>
                   <dt>Currency</dt>
                   <dd>
-                    Indonesian rupiah (IDR)
+                    Australian dollar (AUD)
                   </dd>
                 </div>
 
@@ -755,7 +755,7 @@ export default function Dashboard({
       <InvoiceScannerModal
         open={invoiceScannerOpen}
         onClose={() => setInvoiceScannerOpen(false)}
-        onSaved={() => router.refresh()}
+        onConfirmed={() => router.refresh()}
       />
     </div>
   );

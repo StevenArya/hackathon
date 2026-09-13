@@ -1,602 +1,585 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useRef, useState } from "react";
+import * as pdfjs from "pdfjs-dist";
 
-type Rule = {
-  category: "paid" | "credit" | "loan";
-  label: string;
-  keywords: string[];
-  title_patterns: string[];
-  color_hint: string | null;
-  notes: string | null;
-};
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
-type AnalysisResult = {
-  classification: "paid" | "credit" | "loan" | "unknown";
-  confidence: number;
-  matchedSignals: string[];
-  reasoning: string;
+type ScanResult = {
   invoiceNumber: string | null;
-  customerCode: string | null;
-  bankReference: string | null;
   customerName: string | null;
+  customerCode: string | null;
+  bankRefNumber: string | null;
   amount: number | null;
   issueDate: string | null;
   dueDate: string | null;
-  title: string | null;
-  matchedCustomer: {
-    id: string;
-    name: string;
-    customer_code: string;
-    bank_ref_number: string | null;
-  } | null;
+  paymentType: "cash" | "credit" | "loan" | null;
+  confidence: number;
+  reasoning: string;
 };
 
-type Props = {
+type InvoiceScannerModalProps = {
   open: boolean;
   onClose: () => void;
-  onSaved?: () => void;
+  onConfirmed?: () => void;
 };
 
-const categories: Array<Rule["category"]> = ["paid", "credit", "loan"];
+const MAX_PDF_PAGES = 5;
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+async function pdfToImages(file: File): Promise<File[]> {
+  const arrayBuffer = await file.arrayBuffer();
+
+  const loadingTask = pdfjs.getDocument({
+    data: arrayBuffer,
+  });
+
+  const pdf = await loadingTask.promise;
+
+  const pageCount = Math.min(
+    pdf.numPages,
+    MAX_PDF_PAGES
+  );
+
+  const images: File[] = [];
+
+  for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
+    const page = await pdf.getPage(pageNumber);
+
+    const viewport = page.getViewport({
+      scale: 2,
+    });
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      throw new Error("Could not create PDF canvas.");
+    }
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({
+      canvas,
+      canvasContext: context,
+      viewport,
+    }).promise;
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(
+              new Error(
+                `Could not convert PDF page ${pageNumber}.`
+              )
+            );
+          }
+        },
+        "image/jpeg",
+        0.9
+      );
+    });
+
+    images.push(
+      new File(
+        [blob],
+        `${file.name.replace(/\.pdf$/i, "")}-page-${pageNumber}.jpg`,
+        {
+          type: "image/jpeg",
+        }
+      )
+    );
+  }
+
+  return images;
+}
 
 export default function InvoiceScannerModal({
   open,
   onClose,
-  onSaved,
-}: Props) {
-  const [imageDataUrl, setImageDataUrl] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [rules, setRules] = useState<Rule[]>([]);
-  const [showRules, setShowRules] = useState(false);
-  const [loadingRules, setLoadingRules] = useState(false);
-  const [savingRules, setSavingRules] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [savingInvoice, setSavingInvoice] = useState(false);
-  const [message, setMessage] = useState("");
+  onConfirmed,
+}: InvoiceScannerModalProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const canSave = useMemo(() => {
-    if (!analysis) return false;
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] =
+    useState<string | null>(null);
 
-    return Boolean(
-      analysis.classification !== "unknown" &&
-        analysis.matchedCustomer &&
-        analysis.invoiceNumber &&
-        analysis.amount &&
-        analysis.amount > 0
-    );
-  }, [analysis]);
+  const [result, setResult] =
+    useState<ScanResult | null>(null);
 
-  useEffect(() => {
-    if (!open) return;
+  const [loading, setLoading] = useState(false);
+  const [confirming, setConfirming] =
+    useState(false);
 
-    void loadRules();
-  }, [open]);
+  const [error, setError] =
+    useState<string | null>(null);
 
-  if (!open) return null;
+  if (!open) {
+    return null;
+  }
 
-  async function loadRules() {
-    setLoadingRules(true);
+  function reset() {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
 
-    try {
-      const response = await fetch("/api/invoices/rules");
-      const result = await response.json();
+    setFile(null);
+    setPreviewUrl(null);
+    setResult(null);
+    setError(null);
 
-      if (!response.ok) {
-        throw new Error(result.error ?? "Unable to load classification rules.");
-      }
-
-      setRules(result.rules ?? []);
-    } catch (error) {
-      console.error(error);
-      setMessage("Could not load classification rules.");
-    } finally {
-      setLoadingRules(false);
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
   }
 
-  function handleFile(file?: File) {
-    if (!file) return;
+  function handleClose() {
+    reset();
+    onClose();
+  }
 
-    if (!file.type.startsWith("image/")) {
-      setMessage("Please choose an image file.");
+  function handleFileChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const selected = event.target.files?.[0];
+
+    if (!selected) {
       return;
     }
 
-    if (file.size > 12 * 1024 * 1024) {
-      setMessage("Please use an image smaller than 12 MB.");
+    setError(null);
+    setResult(null);
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "application/pdf",
+    ];
+
+    if (!allowedTypes.includes(selected.type)) {
+      setError(
+        "Please upload a JPG, PNG, WebP, or PDF file."
+      );
       return;
     }
 
-    const reader = new FileReader();
+    if (selected.size > MAX_FILE_SIZE) {
+      setError(
+        "File must be smaller than 20 MB."
+      );
+      return;
+    }
 
-    reader.onload = () => {
-      const result = reader.result;
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
 
-      if (typeof result !== "string") return;
+    setFile(selected);
 
-      setImageDataUrl(result);
-      setFileName(file.name);
-      setAnalysis(null);
-      setMessage("");
-    };
-
-    reader.readAsDataURL(file);
+    if (selected.type === "application/pdf") {
+      setPreviewUrl(null);
+    } else {
+      setPreviewUrl(
+        URL.createObjectURL(selected)
+      );
+    }
   }
 
   async function analyzeInvoice() {
-    if (!imageDataUrl) return;
-
-    setAnalyzing(true);
-    setAnalysis(null);
-    setMessage("");
+    if (!file) {
+      setError("Please select an invoice first.");
+      return;
+    }
 
     try {
-      const response = await fetch("/api/invoices/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          imageDataUrl,
-        }),
-      });
+      setLoading(true);
+      setError(null);
+      setResult(null);
 
-      const result = await response.json();
+      const formData = new FormData();
 
-      if (!response.ok) {
-        throw new Error(result.error ?? "Unable to analyse invoice.");
-      }
+      if (file.type === "application/pdf") {
+        const pdfImages = await pdfToImages(file);
 
-      setAnalysis(result.analysis);
-    } catch (error) {
-      console.error(error);
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Unable to analyse this invoice."
-      );
-    } finally {
-      setAnalyzing(false);
-    }
-  }
-
-  function updateRule(
-    category: Rule["category"],
-    field: "keywords" | "title_patterns" | "color_hint" | "notes",
-    value: string
-  ) {
-    setRules((current) =>
-      current.map((rule) => {
-        if (rule.category !== category) return rule;
-
-        if (field === "keywords" || field === "title_patterns") {
-          return {
-            ...rule,
-            [field]: value
-              .split(",")
-              .map((item) => item.trim())
-              .filter(Boolean),
-          };
+        for (const image of pdfImages) {
+          formData.append("images", image);
         }
-
-        return {
-          ...rule,
-          [field]: value,
-        };
-      })
-    );
-  }
-
-  async function saveRules() {
-    setSavingRules(true);
-    setMessage("");
-
-    try {
-      const response = await fetch("/api/invoices/rules", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          rules,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error ?? "Unable to save rules.");
+      } else {
+        formData.append("images", file);
       }
 
-      setRules(result.rules ?? rules);
-      setMessage("Classification identifiers saved.");
-    } catch (error) {
-      console.error(error);
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Unable to save classification identifiers."
+      const response = await fetch(
+        "/api/invoices/analyze",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ??
+            "Unable to analyse invoice."
+        );
+      }
+
+      setResult(data.analysis);
+    } catch (err) {
+      console.error(
+        "Invoice scan error:",
+        err
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to analyse invoice."
       );
     } finally {
-      setSavingRules(false);
+      setLoading(false);
     }
   }
 
-  async function confirmAndSave() {
-    if (!analysis || !canSave) return;
+  async function confirmInvoice() {
+  if (!result) {
+    return;
+  }
 
-    setSavingInvoice(true);
-    setMessage("");
+  try {
+    setConfirming(true);
+    setError(null);
 
-    try {
-      const response = await fetch("/api/invoices/confirm-scan", {
+    const response = await fetch(
+      "/api/invoices/confirm-scan",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          analysis,
+          analysis: result,
         }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error ?? "Unable to save invoice.");
       }
+    );
 
-      setMessage("Invoice saved successfully.");
-      onSaved?.();
+    const data = await response.json();
 
-      setTimeout(() => {
-        onClose();
-        setImageDataUrl("");
-        setFileName("");
-        setAnalysis(null);
-        setMessage("");
-      }, 700);
-    } catch (error) {
-      console.error(error);
-      setMessage(
-        error instanceof Error ? error.message : "Unable to save invoice."
+    if (!response.ok) {
+      throw new Error(
+        data.error ??
+          "Unable to save invoice."
       );
-    } finally {
-      setSavingInvoice(false);
     }
+
+    console.log(
+      "Invoice successfully saved:",
+      data
+    );
+
+    onConfirmed?.();
+
+    handleClose();
+
+    window.location.reload();
+  } catch (err) {
+    console.error(
+      "Confirm invoice error:",
+      err
+    );
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Unable to save invoice."
+    );
+  } finally {
+    setConfirming(false);
   }
+}
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 px-4 py-8">
-      <div className="mx-auto w-full max-w-5xl rounded-2xl border border-pink-100 bg-white shadow-2xl shadow-pink-200/50">
-        <div className="flex items-center justify-between border-b border-pink-100 px-6 py-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+        <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-pink-500">
-              Scan invoice / faktur
+            <h2 className="text-xl font-semibold text-slate-900">
+              Scan Invoice
             </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Take a photo or upload an invoice. Invora will classify it and
-              match the customer.
+
+            <p className="mt-1 text-sm text-slate-500">
+              Upload an invoice image or PDF and
+              let Invora AI extract the details.
             </p>
           </div>
 
           <button
             type="button"
-            onClick={onClose}
-            className="text-2xl text-stone-500 hover:text-stone-700"
-            aria-label="Close scanner"
+            onClick={handleClose}
+            className="rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100"
           >
-            ×
+            ✕
           </button>
         </div>
 
-        <div className="grid gap-6 p-6 lg:grid-cols-[1fr_1.05fr]">
-          <section>
-            <div className="rounded-2xl border border-dashed border-pink-200 bg-yellow-50 p-5">
-              <label className="block cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={(event) => handleFile(event.target.files?.[0])}
-                />
+        {!result && (
+          <>
+            <label className="block cursor-pointer rounded-xl border-2 border-dashed border-slate-300 p-8 text-center transition hover:border-slate-400">
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                capture="environment"
+                onChange={handleFileChange}
+                className="hidden"
+              />
 
-                <div className="text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100 text-2xl">
-                    📷
+              <div className="text-4xl">
+                📄
+              </div>
+
+              <p className="mt-3 font-medium text-slate-800">
+                Upload invoice
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                JPG, PNG, WebP, or PDF
+              </p>
+
+              <p className="mt-1 text-xs text-slate-400">
+                PDFs: first 5 pages will be scanned
+              </p>
+            </label>
+
+            {file && (
+              <div className="mt-4 rounded-xl border border-slate-200 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-800">
+                      {file.name}
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-500">
+                      {(
+                        file.size /
+                        1024 /
+                        1024
+                      ).toFixed(2)}{" "}
+                      MB
+                    </p>
                   </div>
-
-                  <p className="text-sm font-medium text-stone-800">
-                    Take photo or choose invoice
-                  </p>
-
-                  <p className="mt-1 text-xs text-stone-500">
-                    JPG, PNG or phone camera
-                  </p>
-                </div>
-              </label>
-            </div>
-
-            {imageDataUrl && (
-              <div className="mt-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm text-stone-500 font-semibold">{fileName}</span>
 
                   <button
                     type="button"
-                    onClick={() => {
-                      setImageDataUrl("");
-                      setFileName("");
-                      setAnalysis(null);
-                    }}
-                    className="text-xs text-red-500"
+                    onClick={reset}
+                    className="text-sm font-medium text-red-600"
                   >
                     Remove
                   </button>
                 </div>
 
-                <img
-                  src={imageDataUrl}
-                  alt="Invoice preview"
-                  className="max-h-[420px] w-full rounded-xl border border-pink-100 object-contain"
+                {previewUrl && (
+                  <img
+                    src={previewUrl}
+                    alt="Invoice preview"
+                    className="mt-4 max-h-72 w-full rounded-lg object-contain"
+                  />
+                )}
+
+                {file.type ===
+                  "application/pdf" && (
+                  <div className="mt-4 rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+                    PDF selected. Invora will convert
+                    up to the first 5 pages into
+                    images before scanning.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {error && (
+              <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={!file || loading}
+                onClick={analyzeInvoice}
+                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading
+                  ? "Scanning..."
+                  : "Scan with Invora AI"}
+              </button>
+            </div>
+          </>
+        )}
+
+        {result && (
+          <>
+            <div className="space-y-4">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Invoice Number
+                </p>
+
+                <p className="mt-1 font-semibold text-slate-900">
+                  {result.invoiceNumber ??
+                    "Not detected"}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <ResultField
+                  label="Customer"
+                  value={
+                    result.customerName
+                  }
                 />
 
-                <button
-                  type="button"
-                  onClick={analyzeInvoice}
-                  disabled={analyzing}
-                  className="primary-button mt-4 w-full justify-center"
-                >
-                  {analyzing ? "Analysing invoice…" : "Analyse with AI"}
-                </button>
+                <ResultField
+                  label="Customer Code"
+                  value={
+                    result.customerCode
+                  }
+                />
+
+                <ResultField
+                  label="Bank Reference"
+                  value={
+                    result.bankRefNumber
+                  }
+                />
+
+                <ResultField
+                  label="Amount"
+                  value={
+                    result.amount !== null
+                      ? `$ ${Number(
+                          result.amount
+                        ).toLocaleString(
+                          "en-AU"
+                        )}`
+                      : null
+                  }
+                />
+
+                <ResultField
+                  label="Issue Date"
+                  value={
+                    result.issueDate
+                  }
+                />
+
+                <ResultField
+                  label="Due Date"
+                  value={
+                    result.dueDate
+                  }
+                />
+
+                <ResultField
+                  label="Payment Type"
+                  value={
+                    result.paymentType
+                      ? result.paymentType.toUpperCase()
+                      : null
+                  }
+                />
+
+                <ResultField
+                  label="AI Confidence"
+                  value={`${Math.round(
+                    result.confidence * 100
+                  )}%`}
+                />
+              </div>
+
+              <div className="rounded-xl border border-slate-200 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  AI Notes
+                </p>
+
+                <p className="mt-2 text-sm text-slate-700">
+                  {result.reasoning ||
+                    "No notes provided."}
+                </p>
+              </div>
+            </div>
+
+            {error && (
+              <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                {error}
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => setShowRules((current) => !current)}
-              className="mt-5 text-xs font-medium text-pink-500"
-            >
-              {showRules ? "Hide" : "Edit"} classification identifiers
-            </button>
+            <div className="mt-6 flex justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setResult(null);
+                  setError(null);
+                }}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
+              >
+                Scan Again
+              </button>
 
-            {showRules && (
-              <div className="mt-3 space-y-4 rounded-xl border border-pink-100 p-4">
-                <div>
-                  <p className="text-sm font-semibold text-pink-500">
-                    Business-specific identifiers
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-stone-500">
-                    Tell Invora how your business recognises paid, credit and
-                    loan documents. Use comma-separated examples.
-                  </p>
-                </div>
-
-                {loadingRules ? (
-                  <p className="text-xs text-stone-500">Loading rules…</p>
-                ) : (
-                  categories.map((category) => {
-                    const rule = rules.find(
-                      (item) => item.category === category
-                    );
-
-                    if (!rule) return null;
-
-                    return (
-                      <div
-                        key={category}
-                        className="rounded-lg bg-yellow-50 p-3"
-                      >
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-700">
-                          {rule.label}
-                        </p>
-
-                        <label className="block text-xs text-stone-600">
-                          Keywords / stamps
-                          <input
-                            value={rule.keywords.join(", ")}
-                            onChange={(event) =>
-                              updateRule(
-                                category,
-                                "keywords",
-                                event.target.value
-                              )
-                            }
-                            className="mt-1 w-full rounded-lg border border-pink-100 bg-white px-3 py-2 text-xs outline-none focus:border-pink-400"
-                            placeholder="PAID, LUNAS, NET 30"
-                          />
-                        </label>
-
-                        <label className="mt-3 block text-xs text-stone-600">
-                          Title examples
-                          <input
-                            value={rule.title_patterns.join(", ")}
-                            onChange={(event) =>
-                              updateRule(
-                                category,
-                                "title_patterns",
-                                event.target.value
-                              )
-                            }
-                            className="mt-1 w-full rounded-lg border border-pink-100 bg-white px-3 py-2 text-xs outline-none focus:border-pink-400"
-                            placeholder="Credit Invoice, Loan Agreement"
-                          />
-                        </label>
-
-                        <label className="mt-3 block text-xs text-stone-600">
-                          Colour / visual hint
-                          <input
-                            value={rule.color_hint ?? ""}
-                            onChange={(event) =>
-                              updateRule(
-                                category,
-                                "color_hint",
-                                event.target.value
-                              )
-                            }
-                            className="mt-1 w-full rounded-lg border border-pink-100 bg-white px-3 py-2 text-xs outline-none focus:border-pink-400"
-                            placeholder="green header, red PAID stamp"
-                          />
-                        </label>
-                      </div>
-                    );
-                  })
-                )}
-
-                <button
-                  type="button"
-                  onClick={saveRules}
-                  disabled={savingRules}
-                  className="secondary-button"
-                >
-                  {savingRules ? "Saving…" : "Save identifiers"}
-                </button>
-              </div>
-            )}
-          </section>
-
-          <section>
-            {!analysis ? (
-              <div className="flex min-h-[360px] items-center justify-center rounded-2xl border border-pink-100 bg-yellow-50 p-8 text-center">
-                <div>
-                  <div className="text-3xl">✦</div>
-                  <p className="mt-3 text-sm font-medium text-stone-700">
-                    AI analysis will appear here
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-stone-500">
-                    Invora checks text, title, visual markers, colour hints and
-                    customer identifiers.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-pink-100 p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-stone-500">
-                      Classification
-                    </p>
-                    <h3 className="mt-1 text-xl font-semibold capitalize text-stone-800">
-                      {analysis.classification === "paid"
-                        ? "Paid in full"
-                        : analysis.classification}
-                    </h3>
-                  </div>
-
-                  <div className="rounded-full bg-stone-50 px-3 py-1 text-xs font-medium text-pink-800">
-                    {Math.round(analysis.confidence * 100)}% confidence
-                  </div>
-                </div>
-
-                <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <dt className="text-xs text-stone-500">Invoice</dt>
-                    <dd className="mt-1 font-medium text-stone-800">
-                      {analysis.invoiceNumber ?? "Not detected"}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xs text-stone-500">Amount</dt>
-                    <dd className="mt-1 font-medium text-stone-800">
-                      {analysis.amount
-                        ? new Intl.NumberFormat("id-ID", {
-                            style: "currency",
-                            currency: "IDR",
-                            maximumFractionDigits: 0,
-                          }).format(analysis.amount)
-                        : "Not detected"}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xs text-stone-500">Issue date</dt>
-                    <dd className="mt-1 font-medium text-stone-800">
-                      {analysis.issueDate ?? "Not detected"}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xs text-stone-500">Due date</dt>
-                    <dd className="mt-1 font-medium text-stone-800">
-                      {analysis.dueDate ?? "Not detected"}
-                    </dd>
-                  </div>
-                </dl>
-
-                <div className="mt-5 rounded-xl bg-yellow-50 p-4">
-                  <p className="text-xs font-semibold text-stone-700">
-                    Customer match
-                  </p>
-
-                  {analysis.matchedCustomer ? (
-                    <div className="mt-2">
-                      <p className="text-sm font-medium text-stone-800">
-                        {analysis.matchedCustomer.name}
-                      </p>
-                      <p className="text-xs text-stone-500">
-                        {analysis.matchedCustomer.customer_code}
-                        {analysis.matchedCustomer.bank_ref_number
-                          ? ` · Ref ${analysis.matchedCustomer.bank_ref_number}`
-                          : ""}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-xs text-amber-700">
-                      No exact customer match. Detected:{" "}
-                      {analysis.customerCode ??
-                        analysis.bankReference ??
-                        analysis.customerName ??
-                        "none"}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mt-5">
-                  <p className="text-xs font-semibold text-stone-700">
-                    Why Invora chose this
-                  </p>
-
-                  <ul className="mt-2 space-y-1.5 text-xs leading-5 text-stone-600">
-                    {analysis.matchedSignals.map((signal) => (
-                      <li key={signal}>• {signal}</li>
-                    ))}
-                  </ul>
-
-                  <p className="mt-3 text-xs leading-5 text-stone-500">
-                    {analysis.reasoning}
-                  </p>
-                </div>
-
-                {!canSave && (
-                  <div className="mt-5 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
-                    This result needs manual review before saving. Invora must
-                    detect a customer, invoice number, amount and a confident
-                    category.
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  onClick={confirmAndSave}
-                  disabled={!canSave || savingInvoice}
-                  className="primary-button mt-5 w-full justify-center disabled:opacity-50"
-                >
-                  {savingInvoice ? "Saving…" : "Confirm & Save Invoice"}
-                </button>
-              </div>
-            )}
-
-            {message && (
-              <div className="mt-4 rounded-lg bg-yellow-50 p-3 text-xs text-stone-700">
-                {message}
-              </div>
-            )}
-          </section>
-        </div>
+              <button
+                type="button"
+                onClick={confirmInvoice}
+                disabled={confirming}
+                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              >
+                {confirming
+                  ? "Saving..."
+                  : "Confirm & Add Invoice"}
+              </button>
+            </div>
+          </>
+        )}
       </div>
+    </div>
+  );
+}
+
+function ResultField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 p-4">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 text-sm font-medium text-slate-900">
+        {value ?? "Not detected"}
+      </p>
     </div>
   );
 }
