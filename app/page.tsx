@@ -75,7 +75,7 @@ export default function LandingPage() {
         </div>
 
         {/* Dashboard Preview */}
-        <div className="hover-card rounded-2xl border border-pink-100 bg-white p-5 shadow-xl shadow-pink-200/50">
+        <div className="rounded-2xl border border-pink-100 bg-white p-5 shadow-xl shadow-pink-200/50">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <p className="text-xs text-stone-500">Credit Overview</p>
@@ -147,7 +147,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="border-t border-pink-100 bg-white">
+      <section className="border-t  border-pink-100 bg-white">
         <div className="mx-auto max-w-7xl px-6 py-20">
           <div className="mb-12 text-center">
             <p className="text-sm font-medium text-pink-800">
@@ -196,15 +196,18 @@ export default function LandingPage() {
             {[
               { icon: "users" as const, title: "Create your account", description: "Enter your name, email, and a password." },
               { icon: "check" as const, title: "Confirm your email", description: "Confirm all your personal data." },
-              { icon: "grid" as const, title: "Explore your dashboard", description: "View your invoices, payment dates, and account status once your customer profile is linked." },
+              { icon: "grid" as const, title: "Explore your dashboard", description: "View your invoices, payment dates, and account status." },
             ].map((step, index) => (
-              <li key={step.title} className="flex items-start gap-5 md:flex-col md:items-center">
-                <div aria-hidden="true" className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${index === 1 ? "bg-yellow-100 text-yellow-800" : "bg-pink-50 text-pink-500"}`}>
+              <li key={step.title} className="hover-card ticket-shadow">
+                {/* Keep the shadow outside the mask so it follows the ticket outline. */}
+                <div className="ticket-card flex h-full gap-5 bg-white md:flex-col md:items-center">
+                <div aria-hidden="true" className={`flex ms-3 mt-5 mb-5 h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${index === 1 ? "bg-yellow-100 text-yellow-800" : "bg-pink-50 text-pink-500"}`}>
                   <Icon name={step.icon} className="!h-8 !w-8" />
                 </div>
                 <div className="py-1">
-                  <h3 className="text-lg font-semibold text-stone-800">{step.title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-stone-500">{step.description}</p>
+                  <h3 className="text-lg mt-5 font-semibold text-stone-800">{step.title}</h3>
+                  <p className="mt-1 text-sm mb-2 leading-6 text-stone-500">{step.description}</p>
+                </div>
                 </div>
               </li>
             ))}

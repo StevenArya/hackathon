@@ -291,6 +291,9 @@ tbody tr, .list-row, .activity-item {
 }
 
 /* Repeating transparent notches on both edges give summary cards a ticket silhouette. */
+.ticket-shadow {
+  filter: drop-shadow(0 10px 10px rgb(251 207 232 / 50%));
+}
 .ticket-card {
   border-radius: 16px;
   border: 1px solid #f9a8d4;
@@ -301,7 +304,7 @@ tbody tr, .list-row, .activity-item {
   background-size: 100% 50px;
   background-repeat: repeat-y;
   background-origin: border-box;
-  -webkit-mask-image: radial-gradient(circle at left center, transparent px, black 7.5px), radial-gradient(circle at right center, transparent 7px, black 7.5px);
+  -webkit-mask-image: radial-gradient(circle at left center, transparent 7px, black 7.5px), radial-gradient(circle at right center, transparent 7px, black 7.5px);
   mask-image: radial-gradient(circle at left center, transparent 7px, black 7.5px), radial-gradient(circle at right center, transparent 7px, black 7.5px);
   -webkit-mask-size: 100% 50px;
   mask-size: 100% 50px;
