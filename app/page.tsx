@@ -122,21 +122,21 @@ export default function LandingPage() {
 
             <div className="space-y-4">
               <CustomerRow
-                name="PT Maju Jaya"
+                name="Pacific Trade Wholesale"
                 code="CUST-001"
                 status="High Risk"
                 statusClass="bg-red-100 text-red-700 font-semibold"
               />
 
               <CustomerRow
-                name="PT Nusantara"
+                name="SteelPoint Supplies"
                 code="CUST-002"
                 status="Watch"
                 statusClass="bg-yellow-100 text-yellow-800 font-semibold"
               />
 
               <CustomerRow
-                name="PT Sejahtera"
+                name="Aussie Trade Warehouse"
                 code="CUST-003"
                 status="Good"
                 statusClass="bg-green-100 text-green-700 font-semibold"
