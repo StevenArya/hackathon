@@ -52,14 +52,14 @@ Two guest accounts are seeded with sample data so you can see both sides of the 
 
 ## Business / admin side Log in with:
 
-Email: admin01@gmail.com
-Password: admin1
+* Email: admin01@gmail.com
+* Password: admin1
 
 This account lands on the admin dashboard, where you can view the receivables overview, add and manage customers and invoices, scan a new invoice, verify a customer's payment proof, and chat with the AI credit assistant.
 
 ## Client side Log in with:
 
-Email: antonius@gmail.com
-Password: antonius1
-
+* Email: antonius@gmail.com
+* Password: antonius1
+* 
 This account shows the product from a customer's point of view, including their own invoices and credit status and the ability to submit proof of payment.
